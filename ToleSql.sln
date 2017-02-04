@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{676F4133-A0C4-44A6-A0B4-CA3331DE7D03}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AA8C8D8A-A29F-4CD5-BACA-E0FABBE21BA8}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ToleSql", "src\ToleSql\ToleSql.xproj", "{BE992D98-74E1-4432-98EA-2AD768EA04FD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE992D98-74E1-4432-98EA-2AD768EA04FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE992D98-74E1-4432-98EA-2AD768EA04FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE992D98-74E1-4432-98EA-2AD768EA04FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE992D98-74E1-4432-98EA-2AD768EA04FD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BE992D98-74E1-4432-98EA-2AD768EA04FD} = {676F4133-A0C4-44A6-A0B4-CA3331DE7D03}
+	EndGlobalSection
+EndGlobal
