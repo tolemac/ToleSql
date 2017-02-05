@@ -2,12 +2,21 @@
 
 namespace ToleSql.Builder
 {
+    public enum JoinType
+    {
+        Inner,
+        Left
+    }
+
     public class Join : Table
     {
-        public List<string> Conditions { get; set; } = new List<string>();
-        public Join(string tableName, string schemaName, string alias, string condition) : base(tableName, schemaName, alias)
+        public JoinType Type { get; set; }
+        public string Condition { get; set; }
+
+        public Join(JoinType type, string tableName, string schemaName, string alias, string condition) : base(tableName, schemaName, alias)
         {
-            Conditions.Add(condition);
+            Type = type;
+            Condition = condition;
         }
     }
 }

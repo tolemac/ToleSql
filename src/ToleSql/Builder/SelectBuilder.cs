@@ -49,17 +49,25 @@ namespace ToleSql.Builder
 
         public SelectBuilder AddJoin(string tableName, string condition)
         {
-            return AddJoin(tableName, MainTable?.SchemaName, null, condition);
+            return AddJoin(JoinType.Inner, tableName, MainTable?.SchemaName, null, condition);
+        }
+        public SelectBuilder AddJoin(JoinType type, string tableName, string condition)
+        {
+            return AddJoin(type, tableName, MainTable?.SchemaName, null, condition);
         }
 
         public SelectBuilder AddJoin(string tableName, string schemaName, string condition)
         {
-            return AddJoin(tableName, schemaName, null, condition);
+            return AddJoin(JoinType.Inner, tableName, schemaName, null, condition);
+        }
+        public SelectBuilder AddJoin(JoinType type, string tableName, string schemaName, string condition)
+        {
+            return AddJoin(type, tableName, schemaName, null, condition);
         }
 
-        public SelectBuilder AddJoin(string tableName, string schemaName, string alias, string condition)
+        public SelectBuilder AddJoin(JoinType type, string tableName, string schemaName, string alias, string condition)
         {
-            Joins.Add(new Join(tableName, schemaName, alias ?? GetNextAlias(), condition));
+            Joins.Add(new Join(type, tableName, schemaName, alias ?? GetNextAlias(), condition));
             return this;
         }
 
