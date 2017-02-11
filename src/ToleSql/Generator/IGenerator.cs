@@ -1,6 +1,4 @@
-﻿using ToleSql.Builder;
-
-namespace ToleSql.Generator
+﻿namespace ToleSql.Generator
 {
     public interface IGenerator
     {

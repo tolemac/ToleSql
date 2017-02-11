@@ -4,9 +4,9 @@ using Xunit;
 namespace ToleSql.Tests
 {
 
-    public class TestGenerator
+    public class BuilderGeneratorTests
     {        
-        public TestGenerator()
+        public BuilderGeneratorTests()
         {
         }
 

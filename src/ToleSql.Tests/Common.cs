@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ToleSql.Generator;
+﻿using ToleSql.Generator;
 using ToleSql.Builder;
 
 namespace ToleSql.Tests
