@@ -4,9 +4,9 @@ namespace ToleSql.Builder
 {
     public class SelectBuilder
     {
-        internal Table MainTable;
-        internal List<Column> Columns = new List<Column>();
-        internal List<Join> Joins = new List<Join>();
+        internal SourceExpression MainSource;
+        internal List<ColumnExpression> Selects = new List<ColumnExpression>();
+        internal List<JoinExpression> Joins = new List<JoinExpression>();
         internal List<Where> Wheres = new List<Where>();
         internal List<OrderBy> OrderBys = new List<OrderBy>();
         internal List<string> GroupBys = new List<string>();
@@ -23,87 +23,74 @@ namespace ToleSql.Builder
             return "T" + _aliasCount++;
         }
 
-        public SelectBuilder SetMainTable(string tableName)
+        public SelectBuilder SetMainSource(string expression)
         {
-            return SetMainTable(tableName, null, null);
+            return SetMainSource(expression, null);
         }
-        public SelectBuilder SetMainTable(string tableName, string schemaName)
+        public SelectBuilder SetMainSource(string expression, string alias)
         {
-            return SetMainTable(tableName, schemaName, null);
-        }
-        public SelectBuilder SetMainTable(string tableName, string schemaName, string alias)
-        {
-            MainTable = new Table(tableName, schemaName, alias ?? GetNextAlias());
+            MainSource = new SourceExpression(expression, alias ?? GetNextAlias());
             return this;
         }
 
-        public SelectBuilder AddColumn(string columnName)
+        public SelectBuilder AddColumnExpression(string expression)
         {
-            return AddColumn(columnName, null);
+            return AddColumnExpression(expression, null);
         }
-        public SelectBuilder AddColumn(string column, string columnAs)
+        public SelectBuilder AddColumnExpression(string expression, string alias)
         {
-            Columns.Add(new Column(column, columnAs));
+            Selects.Add(new ColumnExpression(expression, alias));
             return this;
         }
 
-        public SelectBuilder AddJoin(string tableName, string condition)
+        public SelectBuilder AddJoin(string sourceExpression, string conditionExpression)
         {
-            return AddJoin(JoinType.Inner, tableName, MainTable?.SchemaName, null, condition);
+            return AddJoin(JoinType.Inner, sourceExpression, null, conditionExpression);
         }
-        public SelectBuilder AddJoin(JoinType type, string tableName, string condition)
+        public SelectBuilder AddJoin(JoinType type, string sourceExpression, string conditionExpression)
         {
-            return AddJoin(type, tableName, MainTable?.SchemaName, null, condition);
-        }
-
-        public SelectBuilder AddJoin(string tableName, string schemaName, string condition)
-        {
-            return AddJoin(JoinType.Inner, tableName, schemaName, null, condition);
-        }
-        public SelectBuilder AddJoin(JoinType type, string tableName, string schemaName, string condition)
-        {
-            return AddJoin(type, tableName, schemaName, null, condition);
+            return AddJoin(type, sourceExpression, null, conditionExpression);
         }
 
-        public SelectBuilder AddJoin(JoinType type, string tableName, string schemaName, string alias, string condition)
+        public SelectBuilder AddJoin(JoinType type, string sourceExpression, string alias, string conditionExpression)
         {
-            Joins.Add(new Join(type, tableName, schemaName, alias ?? GetNextAlias(), condition));
+            Joins.Add(new JoinExpression(type, sourceExpression, alias ?? GetNextAlias(), conditionExpression));
             return this;
         }
 
-        public SelectBuilder AddWhere(string condition)
+        public SelectBuilder AddWhere(string expression)
         {
-            return AddWhere(WhereOperator.And, condition);
+            return AddWhere(WhereOperator.And, expression);
         }
-        public SelectBuilder AddWhere(WhereOperator preOperator, string condition)
+        public SelectBuilder AddWhere(WhereOperator preOperator, string expression)
         {
-            Wheres.Add(new Where(preOperator, condition));
+            Wheres.Add(new Where(preOperator, expression));
             return this;
         }
 
-        public SelectBuilder OrderBy(string completeColumnName)
+        public SelectBuilder OrderBy(string columnNameOrAlias)
         {
-            return OrderBy(OrderByDirection.Asc, completeColumnName);
+            return OrderBy(OrderByDirection.Asc, columnNameOrAlias);
         }
-        public SelectBuilder OrderBy(OrderByDirection direction, string completeColumnName)
+        public SelectBuilder OrderBy(OrderByDirection direction, string columnNameOrAlias)
         {
-            OrderBys.Add(new OrderBy(direction, completeColumnName));
+            OrderBys.Add(new OrderBy(direction, columnNameOrAlias));
             return this;
         }
 
-        public SelectBuilder GroupBy(string completeColumnName)
+        public SelectBuilder GroupBy(string columnNameOrAlias)
         {
-            GroupBys.Add(completeColumnName);
+            GroupBys.Add(columnNameOrAlias);
             return this;
         }
 
-        public SelectBuilder AddHaving(string condition)
+        public SelectBuilder AddHaving(string expression)
         {
-            return AddHaving(WhereOperator.And, condition);
+            return AddHaving(WhereOperator.And, expression);
         }
-        public SelectBuilder AddHaving(WhereOperator preOperator, string condition)
+        public SelectBuilder AddHaving(WhereOperator preOperator, string expression)
         {
-            Havings.Add(new Where(preOperator, condition));
+            Havings.Add(new Where(preOperator, expression));
             return this;
         }
     }

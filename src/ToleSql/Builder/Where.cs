@@ -9,12 +9,12 @@
     public class Where
     {
         public WhereOperator PreOperator { get; set; }
-        public string Condition { get; set; }
+        public string Expression { get; set; }
 
-        public Where(WhereOperator preOperator, string condition)
+        public Where(WhereOperator preOperator, string expression)
         {
             PreOperator = preOperator;
-            Condition = condition;
+            Expression = expression;
         }
     }
 }

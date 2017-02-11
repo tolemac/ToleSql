@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace ToleSql.Builder
+﻿namespace ToleSql.Builder
 {
     public enum JoinType
     {
@@ -8,12 +6,12 @@ namespace ToleSql.Builder
         Left
     }
 
-    public class Join : Table
+    public class JoinExpression : SourceExpression
     {
         public JoinType Type { get; set; }
         public string Condition { get; set; }
 
-        public Join(JoinType type, string tableName, string schemaName, string alias, string condition) : base(tableName, schemaName, alias)
+        public JoinExpression(JoinType type, string expression, string alias, string condition) : base(expression, alias)
         {
             Type = type;
             Condition = condition;

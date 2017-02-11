@@ -73,16 +73,16 @@ namespace ToleSql.Generator
 
         protected virtual string GenerateSelect()
         {
-            var columns = Builder.Columns.Any()
+            var columns = Builder.Selects.Any()
                 ? string.Join($"{Symbol(SqlSymbols.Comma)} ",
-                    Builder.Columns.Select(
-                        c => c.ColumnName + (c.ColumnAs != null ? $" {Keyword(SqlKeyword.As)} {c.ColumnAs}" : ""))
+                    Builder.Selects.Select(
+                        c => c.Expression + (c.Alias != null ? $" {Keyword(SqlKeyword.As)} {c.Alias}" : ""))
                         .ToArray())
                 : Keyword(SqlKeyword.AllColumns);
             return Keyword(SqlKeyword.Select) + " " + columns;
         }
 
-        protected abstract string GenerateTableNameWithAlias(Table table);
+        protected abstract string GenerateSourceExpressionWithAlias(SourceExpression Expression);
 
         protected virtual string GetJoinTypeLiteral(JoinType joinType)
         {
@@ -99,20 +99,20 @@ namespace ToleSql.Generator
 
         protected virtual string GenerateSourceExplicitJoins()
         {
-            var result = new StringBuilder(Keyword(SqlKeyword.From) + $" {GenerateTableNameWithAlias(Builder.MainTable)}");
+            var result = new StringBuilder(Keyword(SqlKeyword.From) + $" {GenerateSourceExpressionWithAlias(Builder.MainSource)}");
             foreach (var j in Builder.Joins)
             {
-                result.Append($" {GetJoinTypeLiteral(j.Type)} {GenerateTableNameWithAlias(j)} {Keyword(SqlKeyword.On)} {j.Condition}");
+                result.Append($" {GetJoinTypeLiteral(j.Type)} {GenerateSourceExpressionWithAlias(j)} {Keyword(SqlKeyword.On)} {j.Condition}");
             }
             return result.ToString();
         }
 
         protected virtual string GenerateImplicitJoin()
         {
-            var result = new StringBuilder(Keyword(SqlKeyword.From) + $" {GenerateTableNameWithAlias(Builder.MainTable)}");
+            var result = new StringBuilder(Keyword(SqlKeyword.From) + $" {GenerateSourceExpressionWithAlias(Builder.MainSource)}");
             foreach (var j in Builder.Joins)
             {
-                result.Append($"{Symbol(SqlSymbols.Comma)} {GenerateTableNameWithAlias(j)}");
+                result.Append($"{Symbol(SqlSymbols.Comma)} {GenerateSourceExpressionWithAlias(j)}");
             }
             return result.ToString().TrimEnd();
         }
@@ -157,7 +157,7 @@ namespace ToleSql.Generator
                     else if (w.PreOperator == WhereOperator.Or)
                         result.Append($" {Keyword(SqlKeyword.Or)} ");
                 }
-                result.Append($"{w.Condition}");
+                result.Append($"{w.Expression}");
                 whereCount++;
             }
             return result.ToString();
@@ -170,7 +170,7 @@ namespace ToleSql.Generator
 
             var orderBy =
                 string.Join(", ", Builder.OrderBys.Select(
-                    o => $"{o.CompleteColumnName}" + (o.Direction == OrderByDirection.Asc ? " ASC" : " DESC"))
+                    o => $"{o.ColumnNameOrAlias}" + (o.Direction == OrderByDirection.Asc ? " ASC" : " DESC"))
                     .ToArray());
 
             return $"{Keyword(SqlKeyword.OrderBy)} " + orderBy;
@@ -197,7 +197,7 @@ namespace ToleSql.Generator
                     else if (w.PreOperator == WhereOperator.Or)
                         result.Append($" {Keyword(SqlKeyword.Or)} ");
                 }
-                result.Append($"{w.Condition}");
+                result.Append($"{w.Expression}");
             }
             return result.ToString();
         }

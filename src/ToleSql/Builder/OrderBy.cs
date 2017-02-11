@@ -4,12 +4,12 @@
     public class OrderBy
     {
         public OrderByDirection Direction { get; set; }
-        public string CompleteColumnName { get; set; }
+        public string ColumnNameOrAlias { get; set; }
 
-        public OrderBy(OrderByDirection direction, string completeColumnName)
+        public OrderBy(OrderByDirection direction, string columnNameOrAlias)
         {
             Direction = direction;
-            CompleteColumnName = completeColumnName;
+            ColumnNameOrAlias = columnNameOrAlias;
         }
     }
 }

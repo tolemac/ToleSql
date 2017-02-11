@@ -13,16 +13,16 @@ namespace ToleSql.Tests
         {
         }
 
-        protected override string GenerateTableNameWithAlias(Table table)
+        protected override string GenerateSourceExpressionWithAlias(SourceExpression sourceExpression)
         {
-            var result = $"[{table.TableName}]";
-            if (!string.IsNullOrWhiteSpace(table.SchemaName))
+            var result = sourceExpression.Expression;
+            if (result.Contains(" ")) 
             {
-                result = $"[{table.SchemaName}]." + result;
+                result = $"({result})";
             }
-            if (!string.IsNullOrWhiteSpace(table.Alias))
+            if (!string.IsNullOrWhiteSpace(sourceExpression.Alias))
             {
-                result += $" {Keyword(SqlKeyword.As)} {table.Alias}";
+                result += $" {Keyword(SqlKeyword.As)} {sourceExpression.Alias}";
             }
             return result;
         }
