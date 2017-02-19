@@ -1,0 +1,1 @@
+dotnet test ./test/ToleSql.Tests

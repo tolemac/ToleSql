@@ -1,97 +1,128 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using ToleSql.Builder.Definitions;
+using ToleSql.Configuration;
+using ToleSql.Generator.Dialect;
 
 namespace ToleSql.Builder
 {
     public class SelectBuilder
     {
-        internal SourceExpression MainSource;
-        internal List<ColumnExpression> Selects = new List<ColumnExpression>();
-        internal List<JoinExpression> Joins = new List<JoinExpression>();
-        internal List<Where> Wheres = new List<Where>();
-        internal List<OrderBy> OrderBys = new List<OrderBy>();
-        internal List<string> GroupBys = new List<string>();
-        internal List<Where> Havings = new List<Where>();
+        internal SourceSql MainSourceSql;
+        internal List<ColumnSql> SelectSqls = new List<ColumnSql>();
+        internal List<JoinSql> JoinSqls = new List<JoinSql>();
+        internal List<WhereSql> WhereSqls = new List<WhereSql>();
+        internal List<OrderBy> OrderBySqls = new List<OrderBy>();
+        internal List<string> GroupBySqls = new List<string>();
+        internal List<WhereSql> HavingSqls = new List<WhereSql>();
+        internal IDialect Dialect { get { return SqlConfiguration.Dialect; } }
+        public IDictionary<string, object> Parameters { get { return _parameters; } }
 
-        private int _aliasCount;
+        private int _aliasCount = 0;
+        private int _paramCount = 0;
+        private int _subQueryCount = 0;
+        private IDictionary<string, object> _parameters = new Dictionary<string, object>();
         public SelectBuilder()
         {
-            _aliasCount = 0;
         }
 
-        private string GetNextAlias()
+        internal string ParameterNamePrefix { get; } = "SqlParam";
+
+        protected string GetNextTableAlias()
         {
             return "T" + _aliasCount++;
         }
 
-        public SelectBuilder SetMainSource(string expression)
+        public SelectBuilder SetMainSourceSql(string expression)
         {
-            return SetMainSource(expression, null);
+            return SetMainSourceSql(expression, null);
         }
-        public SelectBuilder SetMainSource(string expression, string alias)
+        public SelectBuilder SetMainSourceSql(string expression, string alias)
         {
-            MainSource = new SourceExpression(expression, alias ?? GetNextAlias());
+            if (MainSourceSql != null)
+            {
+                throw new NotSupportedException("Main source already defined.");
+            }
+            MainSourceSql = new SourceSql(expression, alias ?? GetNextTableAlias());
             return this;
         }
 
-        public SelectBuilder AddColumnExpression(string expression)
+        public SelectBuilder AddColumnSql(string expression)
         {
-            return AddColumnExpression(expression, null);
+            return AddColumnSql(expression, null);
         }
-        public SelectBuilder AddColumnExpression(string expression, string alias)
+        public SelectBuilder AddColumnSql(string expression, string alias)
         {
-            Selects.Add(new ColumnExpression(expression, alias));
+            SelectSqls.Add(new ColumnSql(expression, alias));
             return this;
         }
 
-        public SelectBuilder AddJoin(string sourceExpression, string conditionExpression)
+        public SelectBuilder AddJoinSql(string sourceExpression, string conditionExpression)
         {
-            return AddJoin(JoinType.Inner, sourceExpression, null, conditionExpression);
+            return AddJoinSql(JoinType.Inner, sourceExpression, null, conditionExpression);
         }
-        public SelectBuilder AddJoin(JoinType type, string sourceExpression, string conditionExpression)
+        public SelectBuilder AddJoinSql(JoinType type, string sourceExpression, string conditionExpression)
         {
-            return AddJoin(type, sourceExpression, null, conditionExpression);
+            return AddJoinSql(type, sourceExpression, null, conditionExpression);
         }
 
-        public SelectBuilder AddJoin(JoinType type, string sourceExpression, string alias, string conditionExpression)
+        public SelectBuilder AddJoinSql(JoinType type, string sourceExpression, string alias, string conditionExpression)
         {
-            Joins.Add(new JoinExpression(type, sourceExpression, alias ?? GetNextAlias(), conditionExpression));
+            JoinSqls.Add(new JoinSql(type, sourceExpression, alias ?? GetNextTableAlias(), conditionExpression));
             return this;
         }
 
-        public SelectBuilder AddWhere(string expression)
+        public SelectBuilder AddWhereSql(string expression)
         {
-            return AddWhere(WhereOperator.And, expression);
+            return AddWhereSql(WhereOperator.And, expression);
         }
-        public SelectBuilder AddWhere(WhereOperator preOperator, string expression)
+        public SelectBuilder AddWhereSql(WhereOperator preOperator, string expression)
         {
-            Wheres.Add(new Where(preOperator, expression));
+            WhereSqls.Add(new WhereSql(preOperator, expression));
             return this;
         }
 
-        public SelectBuilder OrderBy(string columnNameOrAlias)
+        public SelectBuilder AddOrderBySql(string expression)
         {
-            return OrderBy(OrderByDirection.Asc, columnNameOrAlias);
+            return AddOrderBySql(OrderByDirection.Asc, expression);
         }
-        public SelectBuilder OrderBy(OrderByDirection direction, string columnNameOrAlias)
+        public SelectBuilder AddOrderBySql(OrderByDirection direction, string expression)
         {
-            OrderBys.Add(new OrderBy(direction, columnNameOrAlias));
+            OrderBySqls.Add(new OrderBy(direction, expression));
             return this;
         }
 
-        public SelectBuilder GroupBy(string columnNameOrAlias)
+        public SelectBuilder AddGroupBySql(string expression)
         {
-            GroupBys.Add(columnNameOrAlias);
+            GroupBySqls.Add(expression);
             return this;
         }
 
-        public SelectBuilder AddHaving(string expression)
+        public SelectBuilder AddHavingSql(string expression)
         {
-            return AddHaving(WhereOperator.And, expression);
+            return AddHavingSql(WhereOperator.And, expression);
         }
-        public SelectBuilder AddHaving(WhereOperator preOperator, string expression)
+        public SelectBuilder AddHavingSql(WhereOperator preOperator, string expression)
         {
-            Havings.Add(new Where(preOperator, expression));
+            HavingSqls.Add(new WhereSql(preOperator, expression));
             return this;
+        }
+
+        internal string GetSubQueryParamPrefix()
+        {
+            return "SubQ" + _subQueryCount++;
+        }
+
+        public string NextParamId()
+        {
+            return ParameterNamePrefix + (_paramCount++);
+        }
+        public string AddParameter(object value)
+        {
+            var key = NextParamId();
+            _parameters.Add(key, value);
+            return key;
         }
     }
 }

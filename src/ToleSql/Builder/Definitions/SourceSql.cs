@@ -1,11 +1,11 @@
-﻿namespace ToleSql.Builder
+﻿namespace ToleSql.Builder.Definitions
 {
-    public class ColumnExpression
+    internal class SourceSql
     {
         public string Expression { get; private set; }
         public string Alias { get; private set; }
 
-        public ColumnExpression(string expression, string alias)
+        public SourceSql(string expression, string alias)
         {
             Expression = expression;
             Alias = alias;

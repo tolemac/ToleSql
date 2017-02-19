@@ -1,4 +1,4 @@
-﻿namespace ToleSql.Builder
+﻿namespace ToleSql.Builder.Definitions
 {
     public enum JoinType
     {
@@ -6,12 +6,12 @@
         Left
     }
 
-    public class JoinExpression : SourceExpression
+    internal class JoinSql : SourceSql
     {
         public JoinType Type { get; set; }
         public string Condition { get; set; }
 
-        public JoinExpression(JoinType type, string expression, string alias, string condition) : base(expression, alias)
+        public JoinSql(JoinType type, string expression, string alias, string condition) : base(expression, alias)
         {
             Type = type;
             Condition = condition;

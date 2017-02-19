@@ -1,4 +1,4 @@
-﻿namespace ToleSql.Builder
+﻿namespace ToleSql.Builder.Definitions
 {
     public enum WhereOperator
     {
@@ -6,12 +6,12 @@
         Or
     }
 
-    public class Where
+    internal class WhereSql
     {
         public WhereOperator PreOperator { get; set; }
         public string Expression { get; set; }
 
-        public Where(WhereOperator preOperator, string expression)
+        public WhereSql(WhereOperator preOperator, string expression)
         {
             PreOperator = preOperator;
             Expression = expression;
