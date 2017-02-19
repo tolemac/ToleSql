@@ -2,7 +2,7 @@
 
 ### ToleSql
 
-> ToleSql es el nombre de proyecto para un generador de SQL.
+> ToleSql es generador de SQL para proyectos .NET
 
 ToleSql está construido sobre dos capas, una base (SelectBuilder) que admite fragmentos de SQL en texto y otra (ExpressionSelectBuilder) que admite expressiones que son traducidas a SQL.
 
