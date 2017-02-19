@@ -9,7 +9,7 @@ ToleSql está construido sobre dos capas, una base (SelectBuilder) que admite fr
 #### SelectBuilder
 En este caso un framento de código dice más que mil palabras:
 
-~~~~
+~~~~ csharp
 [Fact]
 public void SelectTableWithColumnsExplicitJoinWhereOrderBy()
 {
@@ -30,7 +30,7 @@ public void SelectTableWithColumnsExplicitJoinWhereOrderBy()
 #### ExpressionSelectBuilder
 
 Aquí va un test:
-~~~~
+~~~~ csharp
 [Fact]
 public void SelectColumnsJoinsAndWhere()
 {
@@ -59,20 +59,20 @@ public void SelectColumnsJoinsAndWhere()
 
 Se parte de la idea de que una consulta no tiene por que tener una tabla principal, por eso la clase principal no usa generics. Sin embargo al añadir cosas si que habrá que especificar los tipos de los objetos que intervienen. Por ejemplo cuando añado una columna:
 
-~~~~
+~~~~ csharp
     b.Select<DeliveryNoteDetail>((id) => id.Size);
 ~~~~
 
 Especifico el tipo `DeliveryNoteDetail` para indicar que quiero la columna correspondiente a la propiedad `Size`.
 En el caso de querer indicar columnas de varias tablas, debo indicar los distintos tipos:
 
-~~~~
+~~~~ csharp
     b.Select<DeliveryNote, Supplier>((i, c) => i.Number, (i, c) => c.Name, (i, c) => i.Date, (i, c) => i.TotalAmount);
 ~~~~
 
 Incluso puedo seleccionar columnas que son combinación de otras:
 
-~~~~
+~~~~ csharp
     b.Select<DeliveryNote, Supplier>((i, c) => i.Number + "-" + s.Name);
 ~~~~
 
@@ -80,7 +80,7 @@ Esto es igual para el `Where`. También se acepta `OrderBy` y pronto `GroupBy` y
 
 A la hora de generar el SQL, ToleSql puede generar nombres de tablas y campos distintos a los nombres de tipos y propiedades. Como no me gustan los `attributes` por ser invasivos, se usa una especie de configuración que llamo `Modeling`:
 
-~~~~
+~~~~ csharp
 private void SetModeling()
 {
     Modeling.ResetModeling();
