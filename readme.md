@@ -1,0 +1,1 @@
+Se aceptan issues en español e inglés.
