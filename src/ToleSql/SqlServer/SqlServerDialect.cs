@@ -34,6 +34,12 @@ namespace ToleSql.SqlServer
             return result;
         }
 
+        public override string AllColumnsFrom(string alias)
+        {
+            var result = $"[{alias}].{Configuration.Dialect.Keyword(SqlKeyword.AllColumns)}";
+            return result;
+        }
+
         public override string AlaisToSql(string alias)
         {
             return $"[{alias}]";

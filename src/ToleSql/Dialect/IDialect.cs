@@ -19,6 +19,7 @@ namespace ToleSql.Dialect
         string TableToSql(string tableName, string schemaName);
         string ColumnToSql(string tableName, string schemaName, string columnName);
         string ColumnToSql(string alias, string columnName);
+        string AllColumnsFrom(string alias);
         string AlaisToSql(string alias);
         string GetJoinTypeLiteral(JoinType joinType);
         string GetSourceExplicitJoins(RawSelectBuilder builder);

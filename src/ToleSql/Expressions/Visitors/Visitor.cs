@@ -12,7 +12,7 @@ namespace ToleSql.Expressions.Visitors
         protected StringBuilder Result = new StringBuilder();
         Dictionary<string, TableDefinition> _definitionsByParameterName;
         RawSelectBuilder _builder;
-        //public bool ForceBinaryExpression { get; set; } = true;
+        internal bool UseColumnAliases { get; set; } = false;
         public Visitor(Dictionary<string, TableDefinition> definitionsByParameterName, RawSelectBuilder builder)
         {
             _definitionsByParameterName = definitionsByParameterName;
@@ -65,6 +65,15 @@ namespace ToleSql.Expressions.Visitors
             }
             return m;
         }
+
+        protected override Expression VisitParameter(ParameterExpression p)
+        {
+            var tableDefinition = _definitionsByParameterName[p.Name];
+            var alias = tableDefinition.Alias;
+            Result.Append(Configuration.Dialect.AllColumnsFrom(alias));
+            return p;
+        }
+
 
         protected object EvaluateMember(MemberExpression m)
         {
@@ -294,30 +303,53 @@ namespace ToleSql.Expressions.Visitors
             return m;
         }
 
-        // protected override Expression VisitNew(NewExpression nex)
-        // {
-        //     // IEnumerable<Expression> args = this.VisitExpressionList(nex.Arguments);
-        //     // if (args != nex.Arguments)
-        //     // {
-        //     //     if (nex.Members != null)
-        //     //         return Expression.New(nex.Constructor, args, nex.Members);
-        //     //     else 
-        //     //         return Expression.New(nex.Constructor, args);
-        //     // }
-        //     return nex;
-        // }
+        private void AddColumnAs(Expression identifier, string columnAlias)
+        {
+            Visit(identifier);
+            if (UseColumnAliases)
+            {
+                Result.Append(" " + Configuration.Dialect.Keyword(SqlKeyword.As) + " ");
+                Result.Append(columnAlias);
+            }
+        }
+        protected override Expression VisitNew(NewExpression nex)
+        {
+            // IEnumerable<Expression> args = this.VisitExpressionList(nex.Arguments);
+            // if (args != nex.Arguments)
+            // {
+            //     if (nex.Members != null)
+            //         return Expression.New(nex.Constructor, args, nex.Members);
+            //     else 
+            //         return Expression.New(nex.Constructor, args);
+            // }
+
+            // Only if type is anonymous.
+            // Anonymous type initialization is translate to new expression.
+            // View section 7.6.10.6 of C# specification. 
+            if (nex.Type.Name.Contains("AnonymousType") && nex.Type.Namespace == null)
+            {
+                for (int i = 0; i < nex.Arguments.Count; i++)
+                {
+                    AddColumnAs(nex.Arguments[i], nex.Members[i].Name);
+                    if (nex.Arguments.Count > i + 1)
+                    {
+                        Result.Append(Configuration.Dialect.Symbol(SqlSymbols.Comma) + " ");
+                    }
+                }
+            }
+
+            return nex;
+        }
         protected override Expression VisitMemberInit(MemberInitExpression init)
         {
-            //NewExpression n = this.VisitNew(init.NewExpression) as NewExpression;
+            NewExpression n = this.VisitNew(init.NewExpression) as NewExpression;
             var i = 0;
             foreach (var binding in init.Bindings)
             {
                 var ma = binding as MemberAssignment;
                 if (ma == null)
                     continue;
-                Visit(ma.Expression);
-                Result.Append(" " + Configuration.Dialect.Keyword(SqlKeyword.As) + " ");
-                Result.Append(ma.Member.Name);
+                AddColumnAs(ma.Expression, ma.Member.Name);
                 i++;
                 if (init.Bindings.Count > i)
                 {

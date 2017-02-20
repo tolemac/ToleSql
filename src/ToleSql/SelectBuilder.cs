@@ -84,7 +84,7 @@ namespace ToleSql
             {
                 var definitionsByParameterName = GetTableDefinitionByParameterName(expr, aliases);
                 var visitor = new Visitor(definitionsByParameterName, this);
-
+                visitor.UseColumnAliases = true;
                 AddColumnSql(visitor.GetSql(expr.Body));
             }
             return this;
@@ -98,7 +98,7 @@ namespace ToleSql
             {
                 var definitionsByParameterName = GetTableDefinitionByParameterName(expr, aliases);
                 var visitor = new Visitor(definitionsByParameterName, this);
-
+                visitor.UseColumnAliases = true;
                 AddColumnSql(visitor.GetSql(expr.Body));
             }
             return this;

@@ -11,7 +11,7 @@ namespace ToleSql.Tests
         {
         }
 
-        private void SetModeling()
+        internal static void SetModeling()
         {
             Modeling.ResetModeling();
             Modeling.Model<Supplier>().SetSchema("WH");
