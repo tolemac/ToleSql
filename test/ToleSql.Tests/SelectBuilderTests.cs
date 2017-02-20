@@ -1,6 +1,7 @@
 using Xunit;
 using ToleSql.SqlBuilder;
 using System;
+using ToleSql.Functions;
 
 namespace ToleSql.Tests
 {
@@ -421,6 +422,28 @@ namespace ToleSql.Tests
             var spec = "SELECT [T0].[Number] AS Number, [T0].[TotalAmount] AS TotalAmount, [T0].[Date] AS Date, [T1].[Name] AS SupplierName FROM [WH].[DeliveryNote] AS [T0] INNER JOIN [WH].[Supplier] AS [T1] ON ([T0].[SupplierId] = [T1].[Id])";
 
             Assert.Equal(spec, gen);
+        }
+
+        [Fact]
+        public void SelectGroupByHaving()
+        {
+            Configuration.SetDialect(new TestDialect());
+            SetModeling();
+            var b = new SelectBuilder();
+            b.SetMainTable<DeliveryNote>();
+            b.Select<DeliveryNote>(dn => dn.SupplierId);
+            b.Select<DeliveryNote>(dn => DbFunctions.Sum(dn.TotalAmount));
+            b.Select<DeliveryNote>(dn => DbFunctions.Count(dn.TotalAmount));
+            b.Select<DeliveryNote>(dn => DbFunctions.Min(dn.TotalAmount));
+            b.Select<DeliveryNote>(dn => DbFunctions.Max(dn.TotalAmount));
+            b.GroupBy<DeliveryNote>(dn => dn.SupplierId);
+            b.Having<DeliveryNote>(dn => DbFunctions.Sum(dn.TotalAmount) > 10);
+
+            var gen = b.GetSqlText();
+            var spec = "SELECT [T0].[SupplierId], SUM([T0].[TotalAmount]), COUNT([T0].[TotalAmount]), MIN([T0].[TotalAmount]), MAX([T0].[TotalAmount]) FROM [WH].[DeliveryNote] AS [T0] GROUP BY [T0].[SupplierId] HAVING (SUM([T0].[TotalAmount]) > @SqlParam0)";
+
+            Assert.Equal(spec, gen);
+            Assert.Equal(b.Parameters["SqlParam0"], (decimal)10);
         }
     }
 }

@@ -12,5 +12,30 @@
       }
     },
     "net452": {}
-  }
+  },
+  // Datos para NuGet
+  "packOptions": {
+    "owners": [
+      "tolemaC"
+    ],
+    "tags": [
+      "sql",
+      "generator",
+      "builder",
+      "expressions"
+    ],
+    "requireLicenseAcceptance": false,
+    "projectUrl": "https://github.com/tolemac/ToleSql",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/tolemac/ToleSql"
+    },
+    "releaseNotes": "Work in progress",
+    "summary": ""
+  },
+  "authors": [
+    "Javier Ros (tolemaC)"
+  ],
+  "description": ".NET Sql Builder and Generator",
+  "copyright": "Copyright 2017"
 }

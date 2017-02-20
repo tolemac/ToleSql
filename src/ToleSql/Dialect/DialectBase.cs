@@ -111,6 +111,14 @@ namespace ToleSql.Dialect
                     return "LIKE";
                 case SqlKeyword.SubString:
                     return "SUBSTRING";
+                case SqlKeyword.Sum:
+                    return "SUM";
+                case SqlKeyword.Count:
+                    return "COUNT";
+                case SqlKeyword.Min:
+                    return "MIN";
+                case SqlKeyword.Max:
+                    return "MAX";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(keyword), keyword, null);
             }

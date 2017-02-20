@@ -3,7 +3,7 @@ using ToleSql.SqlBuilder;
 namespace ToleSql.Dialect
 {
     public enum JoinStyle { Implicit, Explicit }
-    public enum SqlKeyword { Select, As, AllColumns, From, InnerJoin, LeftJoin, On, Where, And, Or, Not, OrderBy, GroupBy, Having, In, Like, SubString }
+    public enum SqlKeyword { Select, As, AllColumns, From, InnerJoin, LeftJoin, On, Where, And, Or, Not, OrderBy, GroupBy, Having, In, Like, SubString, Sum, Count, Min, Max }
     public enum SqlComparison { Equal, NotEqual, LessThan, LessThanOrEqual, GreaterThan, GreaterThanOrEqual, Is, IsNot };
     public enum SqlArithmeticOperand { Add, Subtract, Multiply, Divide };
     public enum SqlSymbols { Comma, StartGroup, EndGroup, Wildchar }

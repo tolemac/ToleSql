@@ -164,5 +164,41 @@ namespace ToleSql
             }
             return this;
         }
+
+        public SelectBuilder GroupBy<TEntity>(params Expression<Func<TEntity, object>>[] expressions)
+        {
+            var tableDefinition = tableDefinitions.Last(td => td.ModelType == typeof(TEntity));
+            var aliases = new[] { tableDefinition.Alias };
+
+            foreach (var expr in expressions)
+            {
+                var definitionsByParameterName = GetTableDefinitionByParameterName(expr, aliases);
+                var visitor = new Visitor(definitionsByParameterName, this);
+
+                var groupBySql = visitor.GetSql(expr.Body);
+                AddGroupBySql(groupBySql);
+            }
+            return this;
+        }
+
+        public SelectBuilder Having<TEntity>(Expression<Func<TEntity, bool>> expression)
+        {
+            return Having(WhereOperator.And, expression);
+        }
+        public SelectBuilder Having<TEntity>(WhereOperator preOperator,
+                    Expression<Func<TEntity, bool>> expression)
+        {
+            var tableDefinition = tableDefinitions.Last(td => td.ModelType == typeof(TEntity));
+            var aliases = new[] { tableDefinition.Alias };
+
+            var definitionsByParameterName = GetTableDefinitionByParameterName(expression, aliases);
+            var visitor = new Visitor(definitionsByParameterName, this);
+
+            var conditionSql = visitor.GetSql(expression.Body);
+
+            AddHavingSql(preOperator, conditionSql);
+            return this;
+        }
+
     }
 }
