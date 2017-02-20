@@ -140,3 +140,28 @@ Está disponible [en NuGet](https://www.nuget.org/packages/ToleSql/)
 ````
 Install-Package ToleSql
 ````
+
+## Uso
+
+Añadir los using:
+```` csharp
+using ToleSql.Expressions;
+using ToleSql.Generator;
+using ToleSql.Generator.SqlServer;
+using ToleSql.Configuration;
+````
+
+Establecer el dialecto SqlServer:
+
+````
+SqlConfiguration.SetDialect(new SqlServerDialect());
+````
+
+Crear el primer select:
+
+```` csharp
+var b = new ExpressionSelectBuilder();
+b.SetMainTable<DeliveryNote>();
+
+var gen = b.GetSqlText();
+````
