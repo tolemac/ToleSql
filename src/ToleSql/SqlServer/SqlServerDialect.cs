@@ -1,6 +1,6 @@
-﻿using ToleSql.Generator.Dialect;
+﻿using ToleSql.Dialect;
 
-namespace ToleSql.Generator.SqlServer
+namespace ToleSql.SqlServer
 {
     public class SqlServerDialect : DialectBase
     {

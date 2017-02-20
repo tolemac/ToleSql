@@ -1,7 +1,4 @@
-﻿using ToleSql.Builder;
-using ToleSql.Builder.Definitions;
-using ToleSql.Configuration;
-using ToleSql.Generator;
+﻿using ToleSql.SqlBuilder;
 using Xunit;
 
 namespace ToleSql.Tests
@@ -16,8 +13,8 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectTable()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
-            var b = new SelectBuilder();
+            Configuration.SetDialect(new TestDialect());
+            var b = new RawSelectBuilder();
 
             b.SetMainSourceSql("[CUSTOMERS]");
 
@@ -28,8 +25,8 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectTableWithSchemaAndAlias()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
-            var b = new SelectBuilder();
+            Configuration.SetDialect(new TestDialect());
+            var b = new RawSelectBuilder();
 
             b.SetMainSourceSql("[WH].[CUSTOMERS]", "T1000");
 
@@ -40,8 +37,8 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectColumnsFromTable()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
-            var b = new SelectBuilder();
+            Configuration.SetDialect(new TestDialect());
+            var b = new RawSelectBuilder();
 
             b.SetMainSourceSql("[CUSTOMERS]");
             b.AddColumnSql("_ID", "ID").AddColumnSql("NAME");
@@ -53,8 +50,8 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectFromTableWithWhere()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
-            var b = new SelectBuilder();
+            Configuration.SetDialect(new TestDialect());
+            var b = new RawSelectBuilder();
 
             b.SetMainSourceSql("[CUSTOMERS]");
             b.AddWhereSql("NAME LIKE @PARAM1").AddWhereSql("ID > 100").AddWhereSql(WhereOperator.Or, "ID > 10000");
@@ -66,8 +63,8 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectFromTableWithOrderBy()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
-            var b = new SelectBuilder();
+            Configuration.SetDialect(new TestDialect());
+            var b = new RawSelectBuilder();
 
             b.SetMainSourceSql("[CUSTOMERS]");
             b.AddOrderBySql("ID").AddOrderBySql(OrderByDirection.Desc, "NAME").AddOrderBySql(OrderByDirection.Asc, "BALANCE");
@@ -79,8 +76,8 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectFromTableWithGroupBy()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
-            var b = new SelectBuilder();
+            Configuration.SetDialect(new TestDialect());
+            var b = new RawSelectBuilder();
 
             b.SetMainSourceSql("[CUSTOMERS]");
             b.AddGroupBySql("COUNTRY").AddGroupBySql("TYPE");
@@ -92,8 +89,8 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectFromTableWithGroupByHaving()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
-            var b = new SelectBuilder();
+            Configuration.SetDialect(new TestDialect());
+            var b = new RawSelectBuilder();
 
             b.SetMainSourceSql("[CUSTOMERS]");
             b.AddGroupBySql("COUNTRY").AddGroupBySql("TYPE").AddHavingSql("COUNT(TOTAL) > 10");
@@ -105,8 +102,8 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectTableWithExplicitJoin()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
-            var b = new SelectBuilder();
+            Configuration.SetDialect(new TestDialect());
+            var b = new RawSelectBuilder();
 
             b.SetMainSourceSql("[CUSTOMERS]");
             b.AddJoinSql("[INVOICE]", "INVOICE.CUSTOMERID = CUSTOMER.ID");
@@ -118,8 +115,8 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectTableWithImplicitJoin()
         {
-            SqlConfiguration.SetDialect(new TestImplicitJoinDialect());
-            var b = new SelectBuilder();
+            Configuration.SetDialect(new TestImplicitJoinDialect());
+            var b = new RawSelectBuilder();
 
             b.SetMainSourceSql("[CUSTOMERS]");
             b.AddJoinSql("[INVOICE]", "INVOICE.CUSTOMERID = CUSTOMER.ID");
@@ -133,8 +130,8 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectTableWithColumnsExplicitJoinWhereOrderBy()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
-            var b = new SelectBuilder();
+            Configuration.SetDialect(new TestDialect());
+            var b = new RawSelectBuilder();
 
             b.SetMainSourceSql("[WH].[INVOICE]");
             b.AddColumnSql("T0.DATE, T0.TOTAL");

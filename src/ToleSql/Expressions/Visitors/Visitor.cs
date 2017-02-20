@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Linq;
 using System.Text;
-using ToleSql.Configuration;
-using ToleSql.Generator.Dialect;
-using ToleSql.Builder;
-using ToleSql.Generator;
-using System.Collections.ObjectModel;
+using ToleSql.Dialect;
 
 namespace ToleSql.Expressions.Visitors
 {
@@ -15,9 +11,9 @@ namespace ToleSql.Expressions.Visitors
     {
         protected StringBuilder Result = new StringBuilder();
         Dictionary<string, TableDefinition> _definitionsByParameterName;
-        SelectBuilder _builder;
+        RawSelectBuilder _builder;
         //public bool ForceBinaryExpression { get; set; } = true;
-        public Visitor(Dictionary<string, TableDefinition> definitionsByParameterName, SelectBuilder builder)
+        public Visitor(Dictionary<string, TableDefinition> definitionsByParameterName, RawSelectBuilder builder)
         {
             _definitionsByParameterName = definitionsByParameterName;
             _builder = builder;
@@ -47,12 +43,12 @@ namespace ToleSql.Expressions.Visitors
                 }
                 if (alias == null)
                 {
-                    Result.Append(SqlConfiguration.Dialect
+                    Result.Append(Configuration.Dialect
                         .ColumnToSql(tableDefinition.TableName, tableDefinition.SchemaName, columnName));
                 }
                 else
                 {
-                    Result.Append(SqlConfiguration.Dialect.ColumnToSql(alias, columnName));
+                    Result.Append(Configuration.Dialect.ColumnToSql(alias, columnName));
                 }
                 //_builder.GetOrAddTableDefinition
                 //Result.Append(SqlConfiguration.Dialect.ColumnToSql() m.Member.DeclaringType.Name + ".");
@@ -76,7 +72,7 @@ namespace ToleSql.Expressions.Visitors
             return compiled.DynamicInvoke();
         }
 
-        protected void AddSubQuery(SelectBuilder subQueryBuilder)
+        protected void AddSubQuery(RawSelectBuilder subQueryBuilder)
         {
             var sql = subQueryBuilder.GetSqlText();
             foreach (var p in subQueryBuilder.Parameters)
@@ -98,15 +94,15 @@ namespace ToleSql.Expressions.Visitors
             }
             else if (q == null)
             {
-                if (c.Type == typeof(ExpressionSelectBuilder))
+                if (c.Type == typeof(SelectBuilder))
                 {
-                    var builder = (ExpressionSelectBuilder)c.Value;
+                    var builder = (SelectBuilder)c.Value;
                     AddSubQuery(builder);
                 }
                 else
                 {
                     var paramKey = _builder.AddParameter(c.Value);
-                    Result.Append(SqlConfiguration.Dialect.GetParameterPrefix() + paramKey);
+                    Result.Append(Configuration.Dialect.GetParameterPrefix() + paramKey);
                 }
 
                 // switch (Type.GetTypeCode(c.Value.GetType()))
@@ -168,7 +164,7 @@ namespace ToleSql.Expressions.Visitors
                 right = right.NodeType == ExpressionType.MemberAccess ? ExpressionsHelper.GetBinaryExpression(right) : right;
             }
 
-            var dialect = SqlConfiguration.Dialect;
+            var dialect = Configuration.Dialect;
             Result.Append(dialect.Symbol(SqlSymbols.StartGroup));
             this.Visit(left);
 
@@ -263,18 +259,18 @@ namespace ToleSql.Expressions.Visitors
 
         protected override Expression VisitMethodCall(MethodCallExpression m)
         {
-            if (m.Method.DeclaringType == typeof(ExpressionSelectBuilderQueryMethods) && m.Method.Name == nameof(ExpressionSelectBuilderQueryMethods.Contains))
+            if (m.Method.DeclaringType == typeof(SelectBuilderQueryExpressionMethods) && m.Method.Name == nameof(SelectBuilderQueryExpressionMethods.Contains))
             {
                 var a = m.Arguments[1];
                 Visit(a);
-                Result.Append(" " + SqlConfiguration.Dialect.Keyword(SqlKeyword.In) + " ");
-                Result.Append(SqlConfiguration.Dialect.Symbol(SqlSymbols.StartGroup));
+                Result.Append(" " + Configuration.Dialect.Keyword(SqlKeyword.In) + " ");
+                Result.Append(Configuration.Dialect.Symbol(SqlSymbols.StartGroup));
                 Visit(m.Arguments[0]);
-                Result.Append(SqlConfiguration.Dialect.Symbol(SqlSymbols.EndGroup));
+                Result.Append(Configuration.Dialect.Symbol(SqlSymbols.EndGroup));
             }
             else
             {
-                foreach (var interceptor in SqlConfiguration.Interceptors)
+                foreach (var interceptor in Configuration.Interceptors)
                 {
                     var result = interceptor.Intercept(m, Result, (exp) => Visit(exp));
                     if (result != null)
@@ -320,12 +316,12 @@ namespace ToleSql.Expressions.Visitors
                 if (ma == null)
                     continue;
                 Visit(ma.Expression);
-                Result.Append(" " + SqlConfiguration.Dialect.Keyword(SqlKeyword.As) + " ");
+                Result.Append(" " + Configuration.Dialect.Keyword(SqlKeyword.As) + " ");
                 Result.Append(ma.Member.Name);
                 i++;
                 if (init.Bindings.Count > i)
                 {
-                    Result.Append(SqlConfiguration.Dialect.Symbol(SqlSymbols.Comma) + " ");
+                    Result.Append(Configuration.Dialect.Symbol(SqlSymbols.Comma) + " ");
                 }
             }
 

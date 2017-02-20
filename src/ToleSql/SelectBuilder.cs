@@ -2,13 +2,13 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using ToleSql.Builder;
+using ToleSql.SqlBuilder;
+using ToleSql.Expressions;
 using ToleSql.Expressions.Visitors;
-using ToleSql.Builder.Definitions;
 
-namespace ToleSql.Expressions
+namespace ToleSql
 {
-    public class ExpressionSelectBuilder : SelectBuilder
+    public class SelectBuilder : RawSelectBuilder
     {
         private List<TableDefinition> tableDefinitions = new List<TableDefinition>();
 
@@ -24,32 +24,32 @@ namespace ToleSql.Expressions
         }
 
         //internal string SubQueryParametersPrefix { get; set; } = "Sub0";
-        public ExpressionSelectBuilder SetMainTable<TEntity>(string alias)
+        public SelectBuilder SetMainTable<TEntity>(string alias)
         {
             var td = GetOrAddTableDefinition(typeof(TEntity), alias);
             SetMainSourceSql(Dialect.TableToSql(td.TableName, td.SchemaName), alias);
             return this;
         }
-        public ExpressionSelectBuilder SetMainTable<TEntity>()
+        public SelectBuilder SetMainTable<TEntity>()
         {
             return SetMainTable<TEntity>(GetNextTableAlias());
         }
-        public ExpressionSelectBuilder AddJoin<TEntity1, TEntity2>(Expression<Func<TEntity1, TEntity2, bool>> condition)
+        public SelectBuilder AddJoin<TEntity1, TEntity2>(Expression<Func<TEntity1, TEntity2, bool>> condition)
         {
             return AddJoin(JoinType.Inner, GetNextTableAlias(), condition);
         }
-        public ExpressionSelectBuilder AddJoin<TEntity1, TEntity2>(string alias,
+        public SelectBuilder AddJoin<TEntity1, TEntity2>(string alias,
             Expression<Func<TEntity1, TEntity2, bool>> condition)
         {
             return AddJoin(JoinType.Inner, alias, condition);
         }
-        public ExpressionSelectBuilder AddJoin<TEntity1, TEntity2>(JoinType joinType,
+        public SelectBuilder AddJoin<TEntity1, TEntity2>(JoinType joinType,
             Expression<Func<TEntity1, TEntity2, bool>> condition)
         {
             return AddJoin(joinType, GetNextTableAlias(), condition);
         }
 
-        public ExpressionSelectBuilder AddJoin<TEntity, TJoin>(JoinType joinType, string alias,
+        public SelectBuilder AddJoin<TEntity, TJoin>(JoinType joinType, string alias,
             Expression<Func<TEntity, TJoin, bool>> condition)
         {
             var tableSourceDefinition = tableDefinitions.Last(td => td.ModelType == typeof(TEntity));
@@ -77,7 +77,7 @@ namespace ToleSql.Expressions
             }
             return result;
         }
-        public ExpressionSelectBuilder Select<TEntity>(params Expression<Func<TEntity, object>>[] expressions)
+        public SelectBuilder Select<TEntity>(params Expression<Func<TEntity, object>>[] expressions)
         {
             var aliases = tableDefinitions.Where(td => td.ModelType == typeof(TEntity)).Select(td => td.Alias).ToArray();
             foreach (var expr in expressions)
@@ -89,7 +89,7 @@ namespace ToleSql.Expressions
             }
             return this;
         }
-        public ExpressionSelectBuilder Select<TEntity1, TEntity2>(params Expression<Func<TEntity1, TEntity2, object>>[] expressions)
+        public SelectBuilder Select<TEntity1, TEntity2>(params Expression<Func<TEntity1, TEntity2, object>>[] expressions)
         {
             var alias1 = tableDefinitions.Single(td => td.ModelType == typeof(TEntity1)).Alias;
             var alias2 = tableDefinitions.Single(td => td.ModelType == typeof(TEntity2)).Alias;
@@ -104,11 +104,11 @@ namespace ToleSql.Expressions
             return this;
         }
 
-        public ExpressionSelectBuilder Where<TEntity>(Expression<Func<TEntity, bool>> expression)
+        public SelectBuilder Where<TEntity>(Expression<Func<TEntity, bool>> expression)
         {
             return Where(WhereOperator.And, expression);
         }
-        public ExpressionSelectBuilder Where<TEntity>(WhereOperator preOperator,
+        public SelectBuilder Where<TEntity>(WhereOperator preOperator,
                     Expression<Func<TEntity, bool>> expression)
         {
             var tableDefinition = tableDefinitions.Last(td => td.ModelType == typeof(TEntity));
@@ -123,12 +123,12 @@ namespace ToleSql.Expressions
             return this;
         }
 
-        public ExpressionSelectBuilder Where<TEntity1, TEntity2>(Expression<Func<TEntity1, TEntity2, bool>> expression)
+        public SelectBuilder Where<TEntity1, TEntity2>(Expression<Func<TEntity1, TEntity2, bool>> expression)
         {
             return Where(WhereOperator.And, expression);
         }
 
-        public ExpressionSelectBuilder Where<TEntity1, TEntity2>(WhereOperator preOperator,
+        public SelectBuilder Where<TEntity1, TEntity2>(WhereOperator preOperator,
                     Expression<Func<TEntity1, TEntity2, bool>> expression)
         {
             var tableDefinition1 = tableDefinitions.Last(td => td.ModelType == typeof(TEntity1));
@@ -144,12 +144,12 @@ namespace ToleSql.Expressions
             return this;
         }
 
-        public ExpressionSelectBuilder OrderBy<TEntity>(params Expression<Func<TEntity, object>>[] expressions)
+        public SelectBuilder OrderBy<TEntity>(params Expression<Func<TEntity, object>>[] expressions)
         {
             return OrderBy(OrderByDirection.Asc, expressions);
         }
 
-        public ExpressionSelectBuilder OrderBy<TEntity>(OrderByDirection direction, params Expression<Func<TEntity, object>>[] expressions)
+        public SelectBuilder OrderBy<TEntity>(OrderByDirection direction, params Expression<Func<TEntity, object>>[] expressions)
         {
             var tableDefinition = tableDefinitions.Last(td => td.ModelType == typeof(TEntity));
             var aliases = new[] { tableDefinition.Alias };

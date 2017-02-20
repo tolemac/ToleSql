@@ -1,5 +1,5 @@
-﻿using ToleSql.Generator.Dialect;
-using ToleSql.Generator.SqlServer;
+﻿using ToleSql.Dialect;
+using ToleSql.SqlServer;
 
 namespace ToleSql.Tests
 {

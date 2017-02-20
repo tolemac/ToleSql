@@ -1,12 +1,11 @@
-using System;
 using System.Collections.Concurrent;
 using ToleSql.Expressions.Visitors.Interceptors;
-using ToleSql.Generator.Dialect;
-using ToleSql.Generator.SqlServer;
+using ToleSql.Dialect;
+using ToleSql.SqlServer;
 
-namespace ToleSql.Configuration
+namespace ToleSql
 {
-    public class SqlConfiguration
+    public class Configuration
     {
         private static ConcurrentBag<IMethodCallInterceptor> _interceptors
             = new ConcurrentBag<IMethodCallInterceptor>();
@@ -23,12 +22,12 @@ namespace ToleSql.Configuration
             _interceptors.Add(interceptor);
         }
 
-        static SqlConfiguration()
+        static Configuration()
         {
-            SqlConfiguration.RegisterInterceptor(new SubStringInterceptor());
-            SqlConfiguration.RegisterInterceptor(new StringContainsInterceptor());
-            SqlConfiguration.RegisterInterceptor(new StringStartsWithInterceptor());
-            SqlConfiguration.RegisterInterceptor(new StringEndsWithInterceptor());
+            Configuration.RegisterInterceptor(new SubStringInterceptor());
+            Configuration.RegisterInterceptor(new StringContainsInterceptor());
+            Configuration.RegisterInterceptor(new StringStartsWithInterceptor());
+            Configuration.RegisterInterceptor(new StringEndsWithInterceptor());
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
-using ToleSql.Configuration;
-using ToleSql.Configuration.Definitions;
+using ToleSql.Model;
 
 namespace ToleSql.Expressions
 {
