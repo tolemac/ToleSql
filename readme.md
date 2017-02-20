@@ -1,6 +1,6 @@
 >Se aceptan issues en español.
 
-### ToleSql
+# ToleSql
 
 > ToleSql es generador de SQL para proyectos .NET
 
@@ -132,3 +132,11 @@ Por otra parte también se ha creado teniendo en cuenta que se pueda generar SQL
 De momento está en fase de construcción, está desarrollado en .NET Core (.Net Standard 1.6) y también se puede usar desde .NET Framework.
 
 Actualmente se está intentando que pueda tragar cualquier cosa, e incluso se pueda extender de forma fácil. La siguiente fase será hacerla más fácil de usar con clases que admitan métodos LinQ que al final usaran `ExpressionSelectBuilder` para ir montando las consultas.
+
+## Instalación via NuGet
+
+Está disponible [en NuGet](https://www.nuget.org/packages/ToleSql/)
+
+````
+Install-Package ToleSql
+````
