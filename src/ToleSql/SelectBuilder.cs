@@ -24,32 +24,32 @@ namespace ToleSql
         }
 
         //internal string SubQueryParametersPrefix { get; set; } = "Sub0";
-        public SelectBuilder SetMainTable<TEntity>(string alias)
+        public SelectBuilder From<TEntity>(string alias)
         {
             var td = GetOrAddTableDefinition(typeof(TEntity), alias);
-            SetMainSourceSql(Dialect.TableToSql(td.TableName, td.SchemaName), alias);
+            FromSql(Dialect.TableToSql(td.TableName, td.SchemaName), alias);
             return this;
         }
-        public SelectBuilder SetMainTable<TEntity>()
+        public SelectBuilder From<TEntity>()
         {
-            return SetMainTable<TEntity>(GetNextTableAlias());
+            return From<TEntity>(GetNextTableAlias());
         }
-        public SelectBuilder AddJoin<TEntity1, TEntity2>(Expression<Func<TEntity1, TEntity2, bool>> condition)
+        public SelectBuilder Join<TEntity1, TEntity2>(Expression<Func<TEntity1, TEntity2, bool>> condition)
         {
-            return AddJoin(JoinType.Inner, GetNextTableAlias(), condition);
+            return Join(JoinType.Inner, GetNextTableAlias(), condition);
         }
-        public SelectBuilder AddJoin<TEntity1, TEntity2>(string alias,
+        public SelectBuilder Join<TEntity1, TEntity2>(string alias,
             Expression<Func<TEntity1, TEntity2, bool>> condition)
         {
-            return AddJoin(JoinType.Inner, alias, condition);
+            return Join(JoinType.Inner, alias, condition);
         }
-        public SelectBuilder AddJoin<TEntity1, TEntity2>(JoinType joinType,
+        public SelectBuilder Join<TEntity1, TEntity2>(JoinType joinType,
             Expression<Func<TEntity1, TEntity2, bool>> condition)
         {
-            return AddJoin(joinType, GetNextTableAlias(), condition);
+            return Join(joinType, GetNextTableAlias(), condition);
         }
 
-        public SelectBuilder AddJoin<TEntity, TJoin>(JoinType joinType, string alias,
+        public SelectBuilder Join<TEntity, TJoin>(JoinType joinType, string alias,
             Expression<Func<TEntity, TJoin, bool>> condition)
         {
             var tableSourceDefinition = tableDefinitions.Last(td => td.ModelType == typeof(TEntity));
@@ -61,7 +61,7 @@ namespace ToleSql
 
             var conditionSql = visitor.GetSql(condition.Body);
 
-            AddJoinSql(joinType, Dialect.TableToSql(tableJoinDefinition.TableName, tableJoinDefinition.SchemaName), alias, conditionSql);
+            JoinSql(joinType, Dialect.TableToSql(tableJoinDefinition.TableName, tableJoinDefinition.SchemaName), alias, conditionSql);
             return this;
         }
         private Dictionary<string, TableDefinition> GetTableDefinitionByParameterName(
@@ -85,7 +85,7 @@ namespace ToleSql
                 var definitionsByParameterName = GetTableDefinitionByParameterName(expr, aliases);
                 var visitor = new Visitor(definitionsByParameterName, this);
                 visitor.UseColumnAliases = true;
-                AddColumnSql(visitor.GetSql(expr.Body));
+                SelectSql(visitor.GetSql(expr.Body));
             }
             return this;
         }
@@ -99,7 +99,7 @@ namespace ToleSql
                 var definitionsByParameterName = GetTableDefinitionByParameterName(expr, aliases);
                 var visitor = new Visitor(definitionsByParameterName, this);
                 visitor.UseColumnAliases = true;
-                AddColumnSql(visitor.GetSql(expr.Body));
+                SelectSql(visitor.GetSql(expr.Body));
             }
             return this;
         }
@@ -119,7 +119,7 @@ namespace ToleSql
 
             var conditionSql = visitor.GetSql(expression.Body);
 
-            AddWhereSql(preOperator, conditionSql);
+            WhereSql(preOperator, conditionSql);
             return this;
         }
 
@@ -140,7 +140,7 @@ namespace ToleSql
 
             var conditionSql = visitor.GetSql(expression.Body);
 
-            AddWhereSql(preOperator, conditionSql);
+            WhereSql(preOperator, conditionSql);
             return this;
         }
 
@@ -160,7 +160,7 @@ namespace ToleSql
                 var visitor = new Visitor(definitionsByParameterName, this);
 
                 var orderbySql = visitor.GetSql(expr.Body);
-                AddOrderBySql(direction, orderbySql);
+                OrderBySql(direction, orderbySql);
             }
             return this;
         }
@@ -182,7 +182,7 @@ namespace ToleSql
                 var visitor = new Visitor(definitionsByParameterName, this);
 
                 var orderbySql = visitor.GetSql(expr.Body);
-                AddOrderBySql(direction, orderbySql);
+                OrderBySql(direction, orderbySql);
             }
             return this;
         }
@@ -198,7 +198,7 @@ namespace ToleSql
                 var visitor = new Visitor(definitionsByParameterName, this);
 
                 var groupBySql = visitor.GetSql(expr.Body);
-                AddGroupBySql(groupBySql);
+                GroupBySql(groupBySql);
             }
             return this;
         }
@@ -215,7 +215,7 @@ namespace ToleSql
                 var visitor = new Visitor(definitionsByParameterName, this);
 
                 var groupBySql = visitor.GetSql(expr.Body);
-                AddGroupBySql(groupBySql);
+                GroupBySql(groupBySql);
             }
             return this;
         }
@@ -235,7 +235,7 @@ namespace ToleSql
 
             var conditionSql = visitor.GetSql(expression.Body);
 
-            AddHavingSql(preOperator, conditionSql);
+            HavingSql(preOperator, conditionSql);
             return this;
         }
 
@@ -255,7 +255,7 @@ namespace ToleSql
 
             var conditionSql = visitor.GetSql(expression.Body);
 
-            AddHavingSql(preOperator, conditionSql);
+            HavingSql(preOperator, conditionSql);
             return this;
         }
 

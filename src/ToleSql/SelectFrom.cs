@@ -39,7 +39,7 @@ namespace ToleSql
         {
             if (Builder.MainSourceSql == null)
             {
-                Builder.SetMainTable<TEntity>();
+                Builder.From<TEntity>();
             }
         }
 
@@ -64,12 +64,12 @@ namespace ToleSql
             inner.Builder = this.Builder;
             var binaryExpression = Expression.MakeBinary(ExpressionType.Equal, outerKeySelector.Body, innerKeySelector.Body);
             var lambda = Expression.Lambda<Func<TEntity, TNewEntity, bool>>(binaryExpression, outerKeySelector.Parameters[0], innerKeySelector.Parameters[0]);
-            Builder.AddJoin<TEntity, TNewEntity>(lambda);
+            Builder.Join<TEntity, TNewEntity>(lambda);
             return new SelectFrom<TResult>(Builder);
         }
         public SelectFrom<TEntity, TNewEntity> Join<TNewEntity>(Expression<Func<TEntity, TNewEntity, bool>> condition)
         {
-            Builder.AddJoin<TEntity, TNewEntity>(condition);
+            Builder.Join<TEntity, TNewEntity>(condition);
             return new SelectFrom<TEntity, TNewEntity>(Builder);
         }
         // public SelectFrom<V> GroupJoin<U, K, V>(SelectFrom<U> inner, Expression<Func<TEntity, K>> outerKeySelector,

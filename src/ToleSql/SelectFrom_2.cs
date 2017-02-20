@@ -23,7 +23,7 @@ namespace ToleSql
 
         public SelectFrom<TEntity2, TNewEntity> Join<TNewEntity>(Expression<Func<TEntity2, TNewEntity, bool>> condition)
         {
-            Builder.AddJoin<TEntity2, TNewEntity>(condition);
+            Builder.Join<TEntity2, TNewEntity>(condition);
             return new SelectFrom<TEntity2, TNewEntity>(Builder);
         }
 
