@@ -78,6 +78,34 @@ Incluso puedo seleccionar columnas que son combinación de otras:
 
 Esto es igual para el `Where`. También se acepta `OrderBy` y pronto `GroupBy` y `Having`, cuando usamos éstos los tipos que intervienen han debido ser incluidos como tablas en la consulta, ya sea como tabla principal o como un `join`. Si no es así falla y te obliga a añadir dicho tipo a la consulta.
 
+También podemos proyectar el resultado a un objeto de forma que se asignan aliases a las columnas resultantes:
+
+```` csharp
+[Fact]
+public void SelectProjection()
+{
+    SqlConfiguration.SetDialect(new TestDialect());
+    SetModeling();
+    var b = new ExpressionSelectBuilder();
+    b.SetMainTable<DeliveryNote>();
+    b.AddJoin<DeliveryNote, Supplier>((dn, s) => dn.SupplierId == s.Id);
+    b.Select<DeliveryNote, Supplier>((dn, s) => new DeliveryNoteDto
+    {
+        Number = dn.Number,
+        TotalAmount = dn.TotalAmount,
+        Date = dn.Date,
+        SupplierName = s.Name
+    });
+
+    var gen = b.GetSqlText();
+    var spec = "SELECT [T0].[Number] AS Number, [T0].[TotalAmount] AS TotalAmount, [T0].[Date] AS Date, [T1].[Name] AS SupplierName FROM [WH].[DeliveryNote] AS [T0] INNER JOIN [WH].[Supplier] AS [T1] ON ([T0].[SupplierId] = [T1].[Id])";
+
+    Assert.Equal(spec, gen);
+}
+````
+
+
+
 A la hora de generar el SQL, ToleSql puede generar nombres de tablas y campos distintos a los nombres de tipos y propiedades. Como no me gustan los `attributes` por ser invasivos, se usa una especie de configuración que llamo `Modeling`:
 
 ~~~~ csharp
