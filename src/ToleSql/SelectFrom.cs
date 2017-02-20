@@ -4,18 +4,17 @@ using ToleSql.SqlBuilder;
 
 namespace ToleSql
 {
-    //delegate R Expression<Func<T1, R>(T1 arg1);
-    //delegate R Expression<Func<T1, T2, R>(T1 arg1, T2 arg2);
+
     public class SelectFrom
     {
-        internal SelectBuilder Builder;
+        public SelectBuilder Builder { get; protected set; }
         public SelectFrom()
         {
             Builder = new SelectBuilder();
         }
-        public SelectFrom<T> Cast<T>()
+        public SelectFrom<TEntity> Cast<TEntity>()
         {
-            return new SelectFrom<T>(Builder);
+            return new SelectFrom<TEntity>(Builder);
         }
 
         public string GetSqlText()
@@ -23,7 +22,7 @@ namespace ToleSql
             return Builder.GetSqlText();
         }
     }
-    public class SelectFrom<T> : SelectFrom
+    public class SelectFrom<TEntity> : SelectFrom
     {
         public SelectFrom() : base()
         {
@@ -40,85 +39,85 @@ namespace ToleSql
         {
             if (Builder.MainSourceSql == null)
             {
-                Builder.SetMainTable<T>();
+                Builder.SetMainTable<TEntity>();
             }
         }
 
-        public SelectFrom<T> Where(Expression<Func<T, bool>> predicate)
+        public SelectFrom<TEntity> Where(Expression<Func<TEntity, bool>> predicate)
         {
-            Builder.Where(predicate);
+            Builder.Where<TEntity>(predicate);
             return this;
         }
-        public SelectFrom Select(Expression<Func<T, object>> selector)
+        public SelectFrom<TEntity> Select(Expression<Func<TEntity, object>> selector)
         {
-            Builder.Select<T>(selector);
+            Builder.Select<TEntity>(selector);
             return this;
         }
-        // public SelectFrom<V> SelectMany<U, V>(Expression<Func<T, SelectFrom<U>>> selector,
-        //     Expression<Func<T, U, V>> resultSelector)
+        // public SelectFrom<V> SelectMany<U, V>(Expression<Func<TEntity, SelectFrom<U>>> selector,
+        //     Expression<Func<Tentity, U, V>> resultSelector)
         // {
         //     return new SelectFrom<V>(Builder);
         // }
-        public SelectFrom<V> Join<U, K, V>(SelectFrom<U> inner, Expression<Func<T, K>> outerKeySelector,
-            Expression<Func<U, K>> innerKeySelector, Expression<Func<T, U, V>> resultSelector)
+        public SelectFrom<TResult> Join<TNewEntity, TKey, TResult>(SelectFrom<TNewEntity> inner, Expression<Func<TEntity, TKey>> outerKeySelector,
+            Expression<Func<TNewEntity, TKey>> innerKeySelector, Expression<Func<TEntity, TNewEntity, TResult>> resultSelector)
         {
             inner.Builder = this.Builder;
             var binaryExpression = Expression.MakeBinary(ExpressionType.Equal, outerKeySelector.Body, innerKeySelector.Body);
-            var lambda = Expression.Lambda<Func<T, U, bool>>(binaryExpression, outerKeySelector.Parameters[0], innerKeySelector.Parameters[0]);
-            Builder.AddJoin<T, U>(lambda);
-            return new SelectFrom<V>(Builder);
+            var lambda = Expression.Lambda<Func<TEntity, TNewEntity, bool>>(binaryExpression, outerKeySelector.Parameters[0], innerKeySelector.Parameters[0]);
+            Builder.AddJoin<TEntity, TNewEntity>(lambda);
+            return new SelectFrom<TResult>(Builder);
         }
-        public SelectFrom<U> Join<U>(Expression<Func<T, U, bool>> condition)
+        public SelectFrom<TEntity, TNewEntity> Join<TNewEntity>(Expression<Func<TEntity, TNewEntity, bool>> condition)
         {
-            Builder.AddJoin<T, U>(condition);
-            return new SelectFrom<U>(Builder);
+            Builder.AddJoin<TEntity, TNewEntity>(condition);
+            return new SelectFrom<TEntity, TNewEntity>(Builder);
         }
-        // public SelectFrom<V> GroupJoin<U, K, V>(SelectFrom<U> inner, Expression<Func<T, K>> outerKeySelector,
-        //     Expression<Func<U, K>> innerKeySelector, Expression<Func<T, SelectFrom<U>, V>> resultSelector)
+        // public SelectFrom<V> GroupJoin<U, K, V>(SelectFrom<U> inner, Expression<Func<TEntity, K>> outerKeySelector,
+        //     Expression<Func<U, K>> innerKeySelector, Expression<Func<TEntity, SelectFrom<U>, V>> resultSelector)
         // {
         //     return new SelectFrom<V>(Builder);
         // }
-        public Order<T> OrderBy(Expression<Func<T, Object>> keySelector)
+        public Order<TEntity> OrderBy(Expression<Func<TEntity, object>> keySelector)
         {
-            Builder.OrderBy<T>(OrderByDirection.Asc, keySelector);
-            return new Order<T>(Builder);
+            Builder.OrderBy<TEntity>(OrderByDirection.Asc, keySelector);
+            return new Order<TEntity>(Builder);
         }
-        public Order<T> OrderByDescending(Expression<Func<T, object>> keySelector)
+        public Order<TEntity> OrderByDescending(Expression<Func<TEntity, object>> keySelector)
         {
-            Builder.OrderBy<T>(OrderByDirection.Desc, keySelector);
-            return new Order<T>(Builder);
+            Builder.OrderBy<TEntity>(OrderByDirection.Desc, keySelector);
+            return new Order<TEntity>(Builder);
         }
-        public SelectFrom<T> GroupBy(Expression<Func<T, object>> keySelector)
+        public SelectFrom<TEntity> GroupBy(Expression<Func<TEntity, object>> keySelector)
         {
-            Builder.GroupBy<T>(keySelector);
+            Builder.GroupBy<TEntity>(keySelector);
             return this;
         }
-        // public SelectFrom<Group<K, E>> GroupBy<K, E>(Expression<Func<T, K>> keySelector,
-        //     Expression<Func<T, E>> elementSelector)
+        // public SelectFrom<Group<K, E>> GroupBy<K, E>(Expression<Func<TEntity, K>> keySelector,
+        //     Expression<Func<TEntity, E>> elementSelector)
         // {
         //     return new SelectFrom<Group<K, E>>(Builder);
         // }
 
-        public SelectFrom<T> Having(Expression<Func<T, bool>> condition)
+        public SelectFrom<TEntity> Having(Expression<Func<TEntity, bool>> condition)
         {
-            Builder.Having<T>(condition);
+            Builder.Having<TEntity>(condition);
             return this;
         }
     }
-    public class Order<T> : SelectFrom<T>
+    public class Order<TEntity> : SelectFrom<TEntity>
     {
         public Order(SelectBuilder builder) : base(builder)
         {
         }
 
-        public Order<T> ThenBy(Expression<Func<T, object>> keySelector)
+        public Order<TEntity> ThenBy(Expression<Func<TEntity, object>> keySelector)
         {
-            Builder.OrderBy<T>(OrderByDirection.Asc, keySelector);
+            Builder.OrderBy<TEntity>(OrderByDirection.Asc, keySelector);
             return this;
         }
-        public Order<T> ThenByDescending(Expression<Func<T, object>> keySelector)
+        public Order<TEntity> ThenByDescending(Expression<Func<TEntity, object>> keySelector)
         {
-            Builder.OrderBy<T>(OrderByDirection.Desc, keySelector);
+            Builder.OrderBy<TEntity>(OrderByDirection.Desc, keySelector);
             return this;
         }
     }

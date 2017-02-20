@@ -165,10 +165,49 @@ namespace ToleSql
             return this;
         }
 
+        public SelectBuilder OrderBy<TEntity1, TEntity2>(params Expression<Func<TEntity1, TEntity2, object>>[] expressions)
+        {
+            return OrderBy(OrderByDirection.Asc, expressions);
+        }
+
+        public SelectBuilder OrderBy<TEntity1, TEntity2>(OrderByDirection direction,
+            params Expression<Func<TEntity1, TEntity2, object>>[] expressions)
+        {
+            var alias1 = tableDefinitions.Single(td => td.ModelType == typeof(TEntity1)).Alias;
+            var alias2 = tableDefinitions.Single(td => td.ModelType == typeof(TEntity2)).Alias;
+            var aliases = new[] { alias1, alias2 };
+            foreach (var expr in expressions)
+            {
+                var definitionsByParameterName = GetTableDefinitionByParameterName(expr, aliases);
+                var visitor = new Visitor(definitionsByParameterName, this);
+
+                var orderbySql = visitor.GetSql(expr.Body);
+                AddOrderBySql(direction, orderbySql);
+            }
+            return this;
+        }
+
         public SelectBuilder GroupBy<TEntity>(params Expression<Func<TEntity, object>>[] expressions)
         {
             var tableDefinition = tableDefinitions.Last(td => td.ModelType == typeof(TEntity));
             var aliases = new[] { tableDefinition.Alias };
+
+            foreach (var expr in expressions)
+            {
+                var definitionsByParameterName = GetTableDefinitionByParameterName(expr, aliases);
+                var visitor = new Visitor(definitionsByParameterName, this);
+
+                var groupBySql = visitor.GetSql(expr.Body);
+                AddGroupBySql(groupBySql);
+            }
+            return this;
+        }
+
+        public SelectBuilder GroupBy<TEntity1, TEntity2>(params Expression<Func<TEntity1, TEntity2, object>>[] expressions)
+        {
+            var alias1 = tableDefinitions.Single(td => td.ModelType == typeof(TEntity1)).Alias;
+            var alias2 = tableDefinitions.Single(td => td.ModelType == typeof(TEntity2)).Alias;
+            var aliases = new[] { alias1, alias2 };
 
             foreach (var expr in expressions)
             {
@@ -190,6 +229,26 @@ namespace ToleSql
         {
             var tableDefinition = tableDefinitions.Last(td => td.ModelType == typeof(TEntity));
             var aliases = new[] { tableDefinition.Alias };
+
+            var definitionsByParameterName = GetTableDefinitionByParameterName(expression, aliases);
+            var visitor = new Visitor(definitionsByParameterName, this);
+
+            var conditionSql = visitor.GetSql(expression.Body);
+
+            AddHavingSql(preOperator, conditionSql);
+            return this;
+        }
+
+        public SelectBuilder Having<TEntity1, TEntity2>(Expression<Func<TEntity1, TEntity2, bool>> expression)
+        {
+            return Having(WhereOperator.And, expression);
+        }
+        public SelectBuilder Having<TEntity1, TEntity2>(WhereOperator preOperator,
+                    Expression<Func<TEntity1, TEntity2, bool>> expression)
+        {
+            var alias1 = tableDefinitions.Single(td => td.ModelType == typeof(TEntity1)).Alias;
+            var alias2 = tableDefinitions.Single(td => td.ModelType == typeof(TEntity2)).Alias;
+            var aliases = new[] { alias1, alias2 };
 
             var definitionsByParameterName = GetTableDefinitionByParameterName(expression, aliases);
             var visitor = new Visitor(definitionsByParameterName, this);

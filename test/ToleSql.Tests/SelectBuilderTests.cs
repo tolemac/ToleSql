@@ -14,7 +14,7 @@ namespace ToleSql.Tests
         internal static void SetModeling()
         {
             Modeling.ResetModeling();
-            Modeling.Model<Supplier>().SetSchema("WH");
+            Modeling.Model<Supplier>().SetSchema("WH").SetColumnName(s => s.CreatedBy, "CreatedBy_Id");
             Modeling.Model<DeliveryNote>().SetSchema("WH");
             Modeling.Model<DeliveryNoteDetail>().SetSchema("WH");
             Modeling.Model<Product>().SetSchema("WH");

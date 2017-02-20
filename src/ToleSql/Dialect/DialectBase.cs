@@ -282,12 +282,12 @@ namespace ToleSql.Dialect
             var result = $"{select} {source}";
             if (!string.IsNullOrWhiteSpace(where))
                 result += $" {where}";
-            if (!string.IsNullOrWhiteSpace(orderBy))
-                result += $" {orderBy}";
             if (!string.IsNullOrWhiteSpace(groupBy))
                 result += $" {groupBy}";
             if (!string.IsNullOrWhiteSpace(having))
                 result += $" {having}";
+            if (!string.IsNullOrWhiteSpace(orderBy))
+                result += $" {orderBy}";
             return result;
         }
     }

@@ -80,5 +80,26 @@ namespace ToleSql.Tests
 
             Assert.Equal(spec, gen);
         }
+        [Fact]
+        public void JoinWithMultipleSelect()
+        {
+            ExpressionsTests.SetModeling();
+            Configuration.SetDialect(new TestDialect());
+            var b = new SelectFrom<DeliveryNote>()
+                .Join<Supplier>((d, s) => d.SupplierId == s.Id)
+                .Select((d, s) => d.Number + s.Name)
+                .GroupBy((d, s) => d.Number + s.Name)
+                .Join<User>((s, u) => s.CreatedBy == u.Id)
+                .Select((s, u) => new { UserName = u.Name })
+                .Select((s, u) => DbFunctions.Count(u.Name))
+                .GroupBy((s, u) => u.Name)
+                .OrderBy((s, u) => u.Name)
+                .Having((s, u) => DbFunctions.Count(u.Name) > 1);
+
+            var gen = b.GetSqlText();
+            var spec = "SELECT ([T0].[Number] + [T1].[Name]), [T2].[Name] AS UserName, COUNT([T2].[Name]) FROM [WH].[DeliveryNote] AS [T0] INNER JOIN [WH].[Supplier] AS [T1] ON ([T0].[SupplierId] = [T1].[Id]) INNER JOIN [LoB].[SecurityProfile] AS [T2] ON ([T1].[CreatedBy_Id] = [T2].[Id]) GROUP BY ([T0].[Number] + [T1].[Name]), [T2].[Name] HAVING (COUNT([T2].[Name]) > @SqlParam0) ORDER BY [T2].[Name] ASC";
+
+            Assert.Equal(spec, gen);
+        }
     }
 }

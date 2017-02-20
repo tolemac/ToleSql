@@ -31,6 +31,7 @@ namespace ToleSql.Tests
         public virtual string Email { get; set; }
         public virtual string TaxCode { get; set; }
         public virtual bool IsDeleted { get; set; }
+        public virtual long CreatedBy { get; set; }
     }
     public class DeliveryNote
     {
