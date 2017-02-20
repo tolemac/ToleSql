@@ -1,6 +1,7 @@
 # Version 1.5.0-beta1
 ## Code refactoring
-* core: unificar clases bajo el namespace `ToleSql` para no tener que hacer tantos `using` (#1)
+* core: unificar clases bajo el namespace `ToleSql` para no tener que hacer tantos `using` #1
+
 ## Breaking Changes
 * core: las clases cambian de nombre y se reubican en el namespace `ToleSql`
 
