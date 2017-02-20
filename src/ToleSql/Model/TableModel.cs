@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using ToleSql.Expressions;
 
-namespace ToleSql.Configuration.Definitions
+namespace ToleSql.Model
 {
     public class TableModel
     {

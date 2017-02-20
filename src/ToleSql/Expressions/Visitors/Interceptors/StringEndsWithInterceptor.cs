@@ -1,7 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Text;
-using ToleSql.Generator.Dialect;
+using ToleSql.Dialect;
 
 namespace ToleSql.Expressions.Visitors.Interceptors
 {

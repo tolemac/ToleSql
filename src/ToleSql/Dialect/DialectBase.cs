@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using ToleSql.Builder;
-using ToleSql.Builder.Definitions;
+using ToleSql.SqlBuilder;
 
-namespace ToleSql.Generator.Dialect
+namespace ToleSql.Dialect
 {
     public abstract class DialectBase : IDialect
     {
@@ -117,7 +116,7 @@ namespace ToleSql.Generator.Dialect
             }
         }
 
-        public virtual string GetSelectClausule(SelectBuilder builder)
+        public virtual string GetSelectClausule(RawSelectBuilder builder)
         {
             var columns = builder.SelectSqls.Any()
                 ? string.Join($"{Symbol(SqlSymbols.Comma)} ",
@@ -155,7 +154,7 @@ namespace ToleSql.Generator.Dialect
             }
         }
 
-        public virtual string GetSourceExplicitJoins(SelectBuilder builder)
+        public virtual string GetSourceExplicitJoins(RawSelectBuilder builder)
         {
             var result = new StringBuilder(Keyword(SqlKeyword.From) + $" {GetSourceSqlWithAlias(builder.MainSourceSql.Expression, builder.MainSourceSql.Alias)}");
             foreach (var j in builder.JoinSqls)
@@ -165,7 +164,7 @@ namespace ToleSql.Generator.Dialect
             return result.ToString();
         }
 
-        public virtual string GetImplicitJoin(SelectBuilder builder)
+        public virtual string GetImplicitJoin(RawSelectBuilder builder)
         {
             var result = new StringBuilder(Keyword(SqlKeyword.From) + $" {GetSourceSqlWithAlias(builder.MainSourceSql.Expression, builder.MainSourceSql.Alias)}");
             foreach (var j in builder.JoinSqls)
@@ -175,7 +174,7 @@ namespace ToleSql.Generator.Dialect
             return result.ToString().TrimEnd();
         }
 
-        public virtual string GetSource(SelectBuilder builder)
+        public virtual string GetSource(RawSelectBuilder builder)
         {
             if (JoinStyle == JoinStyle.Explicit)
             {
@@ -184,13 +183,13 @@ namespace ToleSql.Generator.Dialect
             return GetImplicitJoin(builder);
         }
 
-        public virtual string GetImplicitJoinWhere(SelectBuilder builder)
+        public virtual string GetImplicitJoinWhere(RawSelectBuilder builder)
         {
             if (!builder.JoinSqls.Any())
                 return "";
             return builder.JoinSqls.Select(j => j.Condition).Aggregate((current, next) => current + $" {Keyword(SqlKeyword.And)} " + next);
         }
-        public virtual string GetWhereClausule(SelectBuilder builder)
+        public virtual string GetWhereClausule(RawSelectBuilder builder)
         {
             var result = new StringBuilder($"{Keyword(SqlKeyword.Where)} ");
             var implicitJoinWhere = "";
@@ -221,7 +220,7 @@ namespace ToleSql.Generator.Dialect
             return result.ToString();
         }
 
-        public virtual string GetOrderByClausule(SelectBuilder builder)
+        public virtual string GetOrderByClausule(RawSelectBuilder builder)
         {
             if (!builder.OrderBySqls.Any())
                 return "";
@@ -233,13 +232,13 @@ namespace ToleSql.Generator.Dialect
 
             return $"{Keyword(SqlKeyword.OrderBy)} " + orderBy;
         }
-        public virtual string GetGroupByClausule(SelectBuilder builder)
+        public virtual string GetGroupByClausule(RawSelectBuilder builder)
         {
             if (!builder.GroupBySqls.Any())
                 return "";
             return $"{Keyword(SqlKeyword.GroupBy)} " + string.Join(", ", builder.GroupBySqls.ToArray());
         }
-        public virtual string GetHavingClausule(SelectBuilder builder)
+        public virtual string GetHavingClausule(RawSelectBuilder builder)
         {
             if (!builder.HavingSqls.Any())
                 return "";
@@ -260,7 +259,7 @@ namespace ToleSql.Generator.Dialect
             return result.ToString();
         }
 
-        public virtual string GetSelect(SelectBuilder builder)
+        public virtual string GetSelect(RawSelectBuilder builder)
         {
             var select = GetSelectClausule(builder);
             var source = GetSource(builder);

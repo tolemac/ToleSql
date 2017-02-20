@@ -2,7 +2,7 @@
   "buildOptions": {
     "debugType": "portable"
   },
-  "version": "1.0.2",
+  "version": "1.5.0-beta1",
   "dependencies": {},
   "frameworks": {
     "netstandard1.6": {

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Concurrent;
-using ToleSql.Configuration.Definitions;
+using ToleSql.Model;
 
-namespace ToleSql.Configuration
+namespace ToleSql
 {
     public static class Modeling
     {

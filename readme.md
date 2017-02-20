@@ -4,17 +4,17 @@
 
 > ToleSql es generador de SQL para proyectos .NET
 
-ToleSql está construido sobre dos capas, una base (SelectBuilder) que admite fragmentos de SQL en texto y otra (ExpressionSelectBuilder) que admite expressiones que son traducidas a SQL.
+ToleSql está construido sobre dos capas, una base (RawSelectBuilder) que admite fragmentos de SQL en texto y otra (SelectBuilder) que admite expressiones que son traducidas a SQL.
 
-#### SelectBuilder
+#### RawSelectBuilder
 En este caso un framento de código dice más que mil palabras:
 
 ~~~~ csharp
 [Fact]
 public void SelectTableWithColumnsExplicitJoinWhereOrderBy()
 {
-    SqlConfiguration.SetDialect(new TestDialect());
-    var b = new SelectBuilder();
+    Configuration.SetDialect(new TestDialect());
+    var b = new RawSelectBuilder();
 
     b.SetMainSourceSql("[WH].[INVOICE]");
     b.AddColumnSql("T0.DATE, T0.TOTAL");
@@ -27,16 +27,16 @@ public void SelectTableWithColumnsExplicitJoinWhereOrderBy()
 }
 ~~~~
 
-#### ExpressionSelectBuilder
+#### SelectBuilder
 
 Aquí va un test:
 ~~~~ csharp
 [Fact]
 public void SelectColumnsJoinsAndWhere()
 {
-    SqlConfiguration.SetDialect(new TestDialect());
+    Configuration.SetDialect(new TestDialect());
     SetModeling();
-    var b = new ExpressionSelectBuilder();
+    var b = new SelectBuilder();
     b.SetMainTable<DeliveryNote>();
     b.AddJoin<DeliveryNote, DeliveryNoteDetail>((i, id) => i.Id == id.DeliveryNoteId);
     b.AddJoin<DeliveryNote, Supplier>((i, c) => i.SupplierId == c.Id);
@@ -84,9 +84,9 @@ También podemos proyectar el resultado a un objeto de forma que se asignan alia
 [Fact]
 public void SelectProjection()
 {
-    SqlConfiguration.SetDialect(new TestDialect());
+    Configuration.SetDialect(new TestDialect());
     SetModeling();
-    var b = new ExpressionSelectBuilder();
+    var b = new SelectBuilder();
     b.SetMainTable<DeliveryNote>();
     b.AddJoin<DeliveryNote, Supplier>((dn, s) => dn.SupplierId == s.Id);
     b.Select<DeliveryNote, Supplier>((dn, s) => new DeliveryNoteDto
@@ -131,7 +131,7 @@ Por otra parte también se ha creado teniendo en cuenta que se pueda generar SQL
 
 De momento está en fase de construcción, está desarrollado en .NET Core (.Net Standard 1.6) y también se puede usar desde .NET Framework.
 
-Actualmente se está intentando que pueda tragar cualquier cosa, e incluso se pueda extender de forma fácil. La siguiente fase será hacerla más fácil de usar con clases que admitan métodos LinQ que al final usaran `ExpressionSelectBuilder` para ir montando las consultas.
+Actualmente se está intentando que pueda tragar cualquier cosa, e incluso se pueda extender de forma fácil. La siguiente fase será hacerla más fácil de usar con clases que admitan métodos LinQ que al final usaran `SelectBuilder` para ir montando las consultas.
 
 ## Instalación via NuGet
 
@@ -143,24 +143,15 @@ Install-Package ToleSql
 
 ## Uso
 
-Añadir los using:
+Añadir using:
 ```` csharp
-using ToleSql.Expressions;
-using ToleSql.Generator;
-using ToleSql.Generator.SqlServer;
-using ToleSql.Configuration;
-````
-
-Establecer el dialecto SqlServer:
-
-```` csharp
-SqlConfiguration.SetDialect(new SqlServerDialect());
+using ToleSql;
 ````
 
 Crear el primer select:
 
 ```` csharp
-var b = new ExpressionSelectBuilder();
+var b = new SelectBuilder();
 b.SetMainTable<DeliveryNote>();
 
 var gen = b.GetSqlText();

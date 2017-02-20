@@ -1,4 +1,4 @@
-using ToleSql.Configuration;
+using ToleSql;
 using Xunit;
 
 namespace ToleSql.Tests

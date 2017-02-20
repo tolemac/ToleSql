@@ -1,4 +1,4 @@
-namespace ToleSql.Configuration.Definitions
+namespace ToleSql.Model
 {
     public class ColumnModel
     {

@@ -1,4 +1,4 @@
-﻿namespace ToleSql.Builder.Definitions
+﻿namespace ToleSql.SqlBuilder
 {
     internal class ColumnSql
     {

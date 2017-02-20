@@ -1,8 +1,5 @@
-using ToleSql.Expressions;
-using ToleSql.Generator;
-using ToleSql.Configuration;
 using Xunit;
-using ToleSql.Builder.Definitions;
+using ToleSql.SqlBuilder;
 using System;
 
 namespace ToleSql.Tests
@@ -30,9 +27,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectFromTable()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>();
 
             var gen = b.GetSqlText();
@@ -43,9 +40,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectFromTableWithAlias()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>("T100");
 
             var gen = b.GetSqlText();
@@ -56,9 +53,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectColumnsFromTable()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>();
             b.Select<DeliveryNote>(i => i.Number, i => i.Date);
 
@@ -70,9 +67,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectColumnsWithSubString()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>();
             b.Select<DeliveryNote>(i => i.Number.Substring(0, 3));
 
@@ -84,9 +81,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectColumnsFromTableWithAlias()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>("T100");
             b.Select<DeliveryNote>(i => i.Number, i => i.Date);
 
@@ -98,9 +95,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectJoinTwoTables()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>();
             b.AddJoin<DeliveryNote, DeliveryNoteDetail>((i, id) => i.Id == id.DeliveryNoteId);
 
@@ -112,9 +109,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectLeftJoinTwoTables()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>();
             b.AddJoin<DeliveryNote, DeliveryNoteDetail>(JoinType.Left, (i, id) => i.Id == id.DeliveryNoteId);
 
@@ -126,9 +123,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectJoinTwoTablesWithAliases()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>("T11");
             b.AddJoin<DeliveryNote, DeliveryNoteDetail>("T22", (i, id) => i.Id == id.DeliveryNoteId || i.TotalAmount >= id.UnitPrice);
 
@@ -141,9 +138,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectColumnsFromJoinTwoTablesWithAliases()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>("T11");
             b.AddJoin<DeliveryNote, DeliveryNoteDetail>("T22", (i, id) => i.Id == id.DeliveryNoteId || i.TotalAmount >= id.UnitPrice);
             b.Select<DeliveryNote>((i) => i.Date, (i) => i.Number);
@@ -158,9 +155,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectSelfTableJoin()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<User>("T11");
             b.AddJoin<User, User>("T22", (c1, c2) => c1.CreatedBy == c2.Id);
 
@@ -172,9 +169,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectWithWhere()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>();
             b.Where<DeliveryNote>(i => i.Number == null && i.Year == "B" && i.Id > 2 && i.TotalAmount == 0);
 
@@ -190,9 +187,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectWithWhereWithLike()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<Supplier>();
             b.Where<Supplier>(i => i.Name.Contains("Javier"));
 
@@ -205,9 +202,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectWithWhereWithStartsWith()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<Supplier>();
             b.Where<Supplier>(i => i.Name.StartsWith("Javier"));
 
@@ -220,9 +217,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectWithWhereWithEndsWith()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<Supplier>();
             b.Where<Supplier>(i => i.Name.EndsWith("Javier"));
 
@@ -235,9 +232,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectWithWhereWithLikeAndSubString()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<Supplier>();
             b.Where<Supplier>(i => i.Name.Substring(0).Contains("Javier"));
 
@@ -252,9 +249,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectWithWhereWithInvertedLike()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<Supplier>();
             var name = "Javier Ros Moreno";
             b.Where<Supplier>(i => name.Contains(i.Name));
@@ -268,9 +265,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectWithWhereWithScopeConstants()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>();
             var year = "B";
             var id = 2;
@@ -290,9 +287,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectWithWhereWithNullScopeConstants()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>("T0");
             string year = null;
             long? id = null;
@@ -309,9 +306,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectColumnsJoinsAndWhere()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>();
             b.AddJoin<DeliveryNote, DeliveryNoteDetail>((i, id) => i.Id == id.DeliveryNoteId);
             b.AddJoin<DeliveryNote, Supplier>((i, c) => i.SupplierId == c.Id);
@@ -333,9 +330,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectWithOrderBy()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>();
             b.OrderBy<DeliveryNote>(OrderByDirection.Desc, i => i.Date);
             b.OrderBy<DeliveryNote>(i => i.Year, i => i.SupplierId);
@@ -348,11 +345,11 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectWithSubQuery()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             var f = false;
-            var subQuery = new ExpressionSelectBuilder().SetMainTable<Supplier>().Where<Supplier>(c => c.IsDeleted == f).Select<Supplier>(c => c.Id);
+            var subQuery = new SelectBuilder().SetMainTable<Supplier>().Where<Supplier>(c => c.IsDeleted == f).Select<Supplier>(c => c.Id);
 
             b.SetMainTable<DeliveryNote>();
             b.Where<DeliveryNote>(i => subQuery.Contains(i.SupplierId) && i.Number == "hola");
@@ -365,13 +362,13 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectWithMultipleSubQueryAndParameters()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             var const1 = false;
             var const2 = false;
-            var subQuery1 = new ExpressionSelectBuilder().SetMainTable<Supplier>().Where<Supplier>(c => c.IsDeleted == const1).Select<Supplier>(c => c.Id);
-            var subQuery2 = new ExpressionSelectBuilder().SetMainTable<Supplier>().Where<Supplier>(c => c.IsDeleted == const2).Where<Supplier>(c => subQuery1.Contains(c.Id)).Select<Supplier>(c => c.Id);
+            var subQuery1 = new SelectBuilder().SetMainTable<Supplier>().Where<Supplier>(c => c.IsDeleted == const1).Select<Supplier>(c => c.Id);
+            var subQuery2 = new SelectBuilder().SetMainTable<Supplier>().Where<Supplier>(c => c.IsDeleted == const2).Where<Supplier>(c => subQuery1.Contains(c.Id)).Select<Supplier>(c => c.Id);
 
             b.SetMainTable<DeliveryNote>();
             b.Where<DeliveryNote>(i => subQuery1.Contains(i.SupplierId) && i.Number == "hola1");
@@ -407,9 +404,9 @@ namespace ToleSql.Tests
         [Fact]
         public void SelectProjection()
         {
-            SqlConfiguration.SetDialect(new TestDialect());
+            Configuration.SetDialect(new TestDialect());
             SetModeling();
-            var b = new ExpressionSelectBuilder();
+            var b = new SelectBuilder();
             b.SetMainTable<DeliveryNote>();
             b.AddJoin<DeliveryNote, Supplier>((dn, s) => dn.SupplierId == s.Id);
             b.Select<DeliveryNote, Supplier>((dn, s) => new DeliveryNoteDto
