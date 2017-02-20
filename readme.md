@@ -153,7 +153,7 @@ using ToleSql.Configuration;
 
 Establecer el dialecto SqlServer:
 
-````
+```` csharp
 SqlConfiguration.SetDialect(new SqlServerDialect());
 ````
 
