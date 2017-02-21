@@ -1,7 +1,21 @@
-# Version 1.5.0-beta2 (2017-02-20)
+# Version 1.5.0-beta2 (WIP)
 
 ## Features
-* Add groupby and having. Add sum, max, min and count group functions.
+* Add SelectFrom<TEntity, TJoinedEntity> and double generics methods [e8e4019](https://github.com/tolemac/ToleSql/commit/e8e4019fb449bd3ac1a481a55f238f034e1c09c3)
+* LinQ query syntax is enable with SelectForm [ed034de](https://github.com/tolemac/ToleSql/commit/ed034dee64342893e0cb39850ae918fe8e00bb3d)
+* Add groupby and having. Add sum, max, min and count group functions [ed3f57e](https://github.com/tolemac/ToleSql/commit/ed3f57e88627f8d4ecccc6a0d29eab47b12a791d)
+
+## Build
+* Add test build to build.bat [63b57eb](https://github.com/tolemac/ToleSql/commit/63b57eb73f7ee0d4434c37b4d9b5cfc26cf69004)
+
+## Fixes
+* Remove test project from `InternalsVisibleTo` [8eed20c](https://github.com/tolemac/ToleSql/commit/8eed20cb07775060e4390c7557a9a7e3129b64c8)
+
+## Refactoring
+* Remove `add` prefix from methods [4572ce4](https://github.com/tolemac/ToleSql/commit/4572ce4464c0f1e0154083e4d82f5299fbb84933)
+
+## Documentation
+* wip: Markdown spanish documentation [ea49042](https://github.com/tolemac/ToleSql/commit/ea490423e4fe7f740d6787c4931a61e44da263a3)
 
 # Version 1.5.0-beta1 (2017-02-20)
 
