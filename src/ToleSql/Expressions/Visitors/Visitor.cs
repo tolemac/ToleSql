@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Linq;
 using System.Text;
 using ToleSql.Dialect;
+using ToleSql.Functions;
 
 namespace ToleSql.Expressions.Visitors
 {
@@ -268,7 +269,7 @@ namespace ToleSql.Expressions.Visitors
 
         protected override Expression VisitMethodCall(MethodCallExpression m)
         {
-            if (m.Method.DeclaringType == typeof(SelectBuilderQueryExpressionMethods) && m.Method.Name == nameof(SelectBuilderQueryExpressionMethods.Contains))
+            if (m.Method.DeclaringType == typeof(DbFunctions) && m.Method.Name == nameof(DbFunctions.Contains))
             {
                 var a = m.Arguments[1];
                 Visit(a);

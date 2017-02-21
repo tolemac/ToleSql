@@ -27,7 +27,7 @@ namespace ToleSql
 
         internal string ParameterNamePrefix { get; } = "SqlParam";
 
-        protected string GetNextTableAlias()
+        internal string GetNextTableAlias()
         {
             return "T" + _aliasCount++;
         }

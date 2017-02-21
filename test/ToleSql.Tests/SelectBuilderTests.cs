@@ -108,6 +108,22 @@ namespace ToleSql.Tests
             Assert.Equal(spec, gen);
         }
         [Fact]
+        public void SelectJoinTablesWithTripleType()
+        {
+            Configuration.SetDialect(new TestDialect());
+            SetModeling();
+            var b = new SelectBuilder();
+            b.From<DeliveryNote>();
+            b.Join<DeliveryNote, DeliveryNoteDetail>((i, id) => i.Id == id.DeliveryNoteId);
+            b.Join<DeliveryNote, DeliveryNoteDetail, User>(
+                (dn, dnd, u) => dn.CreatedBy == u.Id && dnd.CreatedBy == u.Id);
+
+            var gen = b.GetSqlText();
+            var spec = "SELECT * FROM [WH].[DeliveryNote] AS [T0] INNER JOIN [WH].[DeliveryNoteDetail] AS [T1] ON ([T0].[Id] = [T1].[DeliveryNote_Id]) INNER JOIN [LoB].[SecurityProfile] AS [T2] ON (([T0].[CreatedBy] = [T2].[Id]) AND ([T1].[CreatedBy] = [T2].[Id]))";
+
+            Assert.Equal(spec, gen);
+        }
+        [Fact]
         public void SelectLeftJoinTwoTables()
         {
             Configuration.SetDialect(new TestDialect());
