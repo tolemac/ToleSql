@@ -1,5 +1,6 @@
 # Version 1.5.0-beta2 (WIP)
 
+* docs: update docs with new features [b1eb556](https://github.com/tolemac/ToleSql/commit/b1eb5563360abd37afedfee64c0ab7341a1b653f)
 * test: add travis continuous integration [199fdb5](https://github.com/tolemac/ToleSql/commit/199fdb50ee31b7e7fa0b791be2128528d56c7192)
 * feat: modeling by builder and default schema [746f59d](https://github.com/tolemac/ToleSql/commit/746f59d4bfd2908db8dc84da1acc660f120fcee2)
 * refactor: interceptor returns a bool value. [6b8cb31](https://github.com/tolemac/ToleSql/commit/6b8cb31d2954e1276b8449e6cf5102e8e4dda609)
