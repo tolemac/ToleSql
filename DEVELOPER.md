@@ -12,7 +12,7 @@ You need at least .Net Core 1.1.0.
 # Clone your GitHub repository:
 git clone https://github.com/tolemac/ToleSql.git
 
-# Go to the Angular directory:
+# Go to the ToleSql directory:
 cd ToleSql
 ````
 
