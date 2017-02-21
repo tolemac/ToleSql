@@ -1,0 +1,5 @@
+{
+    "parallelizeAssembly": false,
+    "methodDisplay": "classAndMethod",
+    "maxParallelThreads": 1
+}

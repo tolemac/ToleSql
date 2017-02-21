@@ -5,19 +5,21 @@ using System.Linq.Expressions;
 using ToleSql.SqlBuilder;
 using ToleSql.Expressions;
 using ToleSql.Expressions.Visitors;
+using ToleSql.Model;
 
 namespace ToleSql
 {
     public class SelectBuilder : RawSelectBuilder
     {
         private List<TableDefinition> tableDefinitions = new List<TableDefinition>();
+        public TypeModeling Modeling { get; set; } = new TypeModeling();
 
         internal TableDefinition GetOrAddTableDefinition(Type modelType, string alias)
         {
             var result = tableDefinitions.LastOrDefault(d => d.ModelType == modelType && d.Alias == alias);
             if (result == null)
             {
-                result = new TableDefinition(modelType, alias);
+                result = new TableDefinition(modelType, alias, Modeling);
                 tableDefinitions.Add(result);
             }
             return result;

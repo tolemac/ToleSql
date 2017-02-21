@@ -11,6 +11,8 @@ namespace ToleSql.Model
         public string SchemaName { get; set; }
         public string TableName { get; set; }
         internal ConcurrentDictionary<string, ColumnModel> _properties = new ConcurrentDictionary<string, ColumnModel>();
+
+        public int PropertyCount { get { return _properties.Count; } }
         public TableModel(Type modelType)
         {
             ModelType = modelType;

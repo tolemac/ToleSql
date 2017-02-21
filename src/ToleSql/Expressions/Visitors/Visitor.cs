@@ -36,7 +36,7 @@ namespace ToleSql.Expressions.Visitors
                 var parameterExpression = (ParameterExpression)m.Expression;
                 var tableDefinition = _definitionsByParameterName[parameterExpression.Name];
                 var alias = tableDefinition.Alias;
-                var columnName = tableDefinition.TableModel?.Column(m.Member.Name)?.ColumnName;
+                var columnName = tableDefinition.GetColumnName(m.Member.Name);
                 if (columnName == null)
                 {
                     columnName = m.Member.Name;
