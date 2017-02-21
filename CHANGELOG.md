@@ -1,5 +1,7 @@
 # Version 1.5.0-beta2 (WIP)
 
+* refactor: interceptor returns a bool value. [6b8cb31](https://github.com/tolemac/ToleSql/commit/6b8cb31d2954e1276b8449e6cf5102e8e4dda609)
+* fix: substring function is 1 based. [a2503b7](https://github.com/tolemac/ToleSql/commit/a2503b7dea8822e04ca44170e62c9a1efa1c3857)
 * docs: add contributing and developer markdown files [ad04ee4](https://github.com/tolemac/ToleSql/commit/ad04ee41f20756a0d307f7bcc15ac8e406b8522a)
 * docs: add issue template [fcdfde7](https://github.com/tolemac/ToleSql/commit/fcdfde7f457bf1ae29d67a3c55ea39f75bbe44df)
 * docs: add initial spanish documentation [ea49042](https://github.com/tolemac/ToleSql/commit/ea490423e4fe7f740d6787c4931a61e44da263a3)
@@ -10,6 +12,9 @@
 * feat: LinQ query syntax is enable with SelectForm [ed034de](https://github.com/tolemac/ToleSql/commit/ed034dee64342893e0cb39850ae918fe8e00bb3d)
 * feat: Add groupby and having. Add sum, max, min and count group functions [ed3f57e](https://github.com/tolemac/ToleSql/commit/ed3f57e88627f8d4ecccc6a0d29eab47b12a791d)
 
+## Breaking Changes
+
+* Interceptors return a bool value instead expression.
 
 # Version 1.5.0-beta1 (2017-02-20)
 
