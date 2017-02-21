@@ -6,7 +6,7 @@ namespace ToleSql.Expressions.Visitors.Interceptors
 {
     public interface IMethodCallInterceptor
     {
-        Expression Intercept(MethodCallExpression m, StringBuilder sql,
+        bool Intercept(MethodCallExpression m, StringBuilder sql,
            Func<Expression, Expression> visit);
     }
 }

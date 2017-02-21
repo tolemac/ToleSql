@@ -282,8 +282,8 @@ namespace ToleSql.Expressions.Visitors
                 foreach (var interceptor in Configuration.Interceptors)
                 {
                     var result = interceptor.Intercept(m, Result, (exp) => Visit(exp));
-                    if (result != null)
-                        return result;
+                    if (result)
+                        return m;
                 }
 
                 var compiled = Expression.Lambda(m).Compile();
