@@ -2,6 +2,10 @@
 
 # ToleSql
 
+[![Build Status](https://travis-ci.org/tolemac/ToleSql.svg)](https://travis-ci.org/tolemac/ToleSql)
+![#](https://img.shields.io/nuget/vpre/tolesql.svg?style=flat)
+![#](https://img.shields.io/nuget/v/tolesql.svg?style=flat)
+
 ToleSql es generador de SQL para proyectos .NET.
 Construye consultas type-safe y refactor friendly para usarlas con ADO.NET o Dapper.
 
