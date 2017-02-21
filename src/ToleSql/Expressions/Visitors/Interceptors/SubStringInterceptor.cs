@@ -18,7 +18,10 @@ namespace ToleSql.Expressions.Visitors.Interceptors
                 sql.Append(Dialect.Symbol(SqlSymbols.StartGroup));
                 visit(m.Object);
                 sql.Append(Dialect.Symbol(SqlSymbols.Comma));
+                sql.Append(Dialect.Symbol(SqlSymbols.StartGroup));
                 visit(start);
+                sql.Append(Dialect.Symbol(SqlSymbols.EndGroup));
+                sql.Append($" {Dialect.ArithMeticOperand(SqlArithmeticOperand.Add)} 1");
                 sql.Append(Dialect.Symbol(SqlSymbols.Comma));
                 visit(end);
                 sql.Append(Dialect.Symbol(SqlSymbols.EndGroup));

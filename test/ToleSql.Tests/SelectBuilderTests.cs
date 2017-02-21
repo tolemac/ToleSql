@@ -75,7 +75,7 @@ namespace ToleSql.Tests
             b.Select<DeliveryNote>(i => i.Number.Substring(0, 3));
 
             var gen = b.GetSqlText();
-            var spec = "SELECT SUBSTRING([T0].[Number],@SqlParam0,@SqlParam1) FROM [WH].[DeliveryNote] AS [T0]";
+            var spec = "SELECT SUBSTRING([T0].[Number],(@SqlParam0) + 1,@SqlParam1) FROM [WH].[DeliveryNote] AS [T0]";
 
             Assert.Equal(spec, gen);
         }
@@ -240,7 +240,7 @@ namespace ToleSql.Tests
             b.Where<Supplier>(i => i.Name.Substring(0).Contains("Javier"));
 
             var gen = b.GetSqlText();
-            var spec = "SELECT * FROM [WH].[Supplier] AS [T0] WHERE SUBSTRING([T0].[Name],@SqlParam0,@SqlParam1) LIKE '%' + @SqlParam2 + '%'";
+            var spec = "SELECT * FROM [WH].[Supplier] AS [T0] WHERE SUBSTRING([T0].[Name],(@SqlParam0) + 1,@SqlParam1) LIKE '%' + @SqlParam2 + '%'";
 
             Assert.Equal(spec, gen);
             Assert.Equal(b.Parameters["SqlParam0"], 0);
