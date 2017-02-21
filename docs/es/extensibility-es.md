@@ -26,7 +26,7 @@ A continuación mostramos el interceptor usado para la función `MAX` de SQL. Cu
 ```` csharp
 public class DbFunctionsMax : MethodCallInterceptorBase
 {
-    public override Expression Intercept(MethodCallExpression m, 
+    public override bool Intercept(MethodCallExpression m, 
         StringBuilder sql, Func<Expression, Expression> visit) // (1) parametros de entrada
     {
         if (m.Method.DeclaringType == typeof(DbFunctions) 
@@ -37,10 +37,10 @@ public class DbFunctionsMax : MethodCallInterceptorBase
             sql.Append($"{Dialect.Symbol(SqlSymbols.StartGroup)}"); // (4a)
             visit(identifier); // (5) Procesado del identificador.
             sql.Append($"{Dialect.Symbol(SqlSymbols.EndGroup)}"); // (4b)
-            return m; // (6) Devolvemos la misma expresión.
+            return true; // (6) Indicamos que hemos capturado la expresión.
         }
-        // Si no pasa el chequeo devolvemos null para indicar que no hemos hecho nada.
-        return null; 
+        // Si no pasa el chequeo devolvemos false para indicar que no hemos hecho nada.
+        return false; 
 
     }
 }
@@ -51,7 +51,7 @@ public class DbFunctionsMax : MethodCallInterceptorBase
 * El string builder donde se va añadiendo la consulta SQL. Cuando tengamos que escribir SQL lo haremos con `sql.Append()`.
 * Un método para procesar expresiones, los argumentos usados en la expresión de llamada al metodo pueden ser constantes, parametros, llamadas a funciones, ... 
 2. Chequeo del método.  
-Lo primero que hacemos es comprobar que se está llamando al método que `DbFunctions.Max()`, para eso comprobamos el tipo donde está declarado el método `Method.DeclaringType` y el nombre del mismo `Method.Name`, si coinciden con `DbFunctions` y `Max` entonces procesamos, si no devolvemos null para indicar a ToleSql que siga buscando interceptores.
+Lo primero que hacemos es comprobar que se está llamando al método que `DbFunctions.Max()`, para eso comprobamos el tipo donde está declarado el método `Method.DeclaringType` y el nombre del mismo `Method.Name`, si coinciden con `DbFunctions` y `Max` entonces procesamos, si no devolvemos false para indicar a ToleSql que siga buscando interceptores para esta expresión.
 3. Acceso al identificador.  
 Sabemos que nuestra función `Max` solo acepta un parametro, así que accedemos a él mediante la expresión. Al ser una `MethodCallExpression` tiene una propiedad llamada `Arguments` que es la lista de argumentos de la función, en este caso cogemos el primero y único.
 4. Escritura de literales.  
@@ -59,7 +59,7 @@ Ahora lo que hacemos es escribir en SQL el literal `MAX`, en este caso lo que se
 Acto seguido escribimos una apertura de parentesis `(`, luego pondremos el identificador y por último (4c) cerraremos el parentesis. La apertura de parentesis se realiza también mediante el dialecto, en este caso le solicitamos el simbolo `StartGroup` o `EndGroup` para cerrar: `Dialect.Symbol(SqlSymbols.StartGroup)` o `Dialect.Symbol(SqlSymbols.EndGroup)`.
 5. Procesado del identificador.  
 El identificador puede ser otra expresión compleja, si estuvieramos seguros de que es un miembro de un parametro podríamos coger su nombre, pero como puede ser cualquier cosa la procesamos con el visitor. En este ejemplo la expresión es `DbFunctions.Max(i.TotalAmount)`, pero podría ser `DbFunctions.Max(i.Count * i.Price * 0.20)`, como ToleSql ya sabe procesar expresiones mejor lo invocamos con `visit(identifier)`.
-6. Devolvemos la misma expresión que hemos procesado, de esa forma indicamos a ToleSql que no siga llamando interceptores.
+6. Devolvemos `true`, de esa forma indicamos a ToleSql que no siga llamando interceptores para esta expresión.
 
 En [/ToleSql/Expressions/Visitors/Interceptors](../../src/ToleSql/Expressions/Visitors/Interceptors) podemos ver la lista de interceptores disponibles.
 
