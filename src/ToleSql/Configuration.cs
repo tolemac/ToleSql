@@ -28,6 +28,10 @@ namespace ToleSql
             Configuration.RegisterInterceptor(new StringContainsInterceptor());
             Configuration.RegisterInterceptor(new StringStartsWithInterceptor());
             Configuration.RegisterInterceptor(new StringEndsWithInterceptor());
+            Configuration.RegisterInterceptor(new DbFunctionsSum());
+            Configuration.RegisterInterceptor(new DbFunctionsCount());
+            Configuration.RegisterInterceptor(new DbFunctionsMin());
+            Configuration.RegisterInterceptor(new DbFunctionsMax());
         }
     }
 }

@@ -5,64 +5,24 @@ using System.Linq.Expressions;
 using ToleSql.SqlBuilder;
 using ToleSql.Expressions;
 using ToleSql.Expressions.Visitors;
+using ToleSql.Model;
 
 namespace ToleSql
 {
     public class SelectBuilder : RawSelectBuilder
     {
         private List<TableDefinition> tableDefinitions = new List<TableDefinition>();
+        public TypeModeling Modeling { get; set; } = new TypeModeling();
 
-        internal TableDefinition GetOrAddTableDefinition(Type modelType, string alias)
+        private TableDefinition GetOrAddTableDefinition(Type modelType, string alias)
         {
             var result = tableDefinitions.LastOrDefault(d => d.ModelType == modelType && d.Alias == alias);
             if (result == null)
             {
-                result = new TableDefinition(modelType, alias);
+                result = new TableDefinition(modelType, alias, Modeling);
                 tableDefinitions.Add(result);
             }
             return result;
-        }
-
-        //internal string SubQueryParametersPrefix { get; set; } = "Sub0";
-        public SelectBuilder SetMainTable<TEntity>(string alias)
-        {
-            var td = GetOrAddTableDefinition(typeof(TEntity), alias);
-            SetMainSourceSql(Dialect.TableToSql(td.TableName, td.SchemaName), alias);
-            return this;
-        }
-        public SelectBuilder SetMainTable<TEntity>()
-        {
-            return SetMainTable<TEntity>(GetNextTableAlias());
-        }
-        public SelectBuilder AddJoin<TEntity1, TEntity2>(Expression<Func<TEntity1, TEntity2, bool>> condition)
-        {
-            return AddJoin(JoinType.Inner, GetNextTableAlias(), condition);
-        }
-        public SelectBuilder AddJoin<TEntity1, TEntity2>(string alias,
-            Expression<Func<TEntity1, TEntity2, bool>> condition)
-        {
-            return AddJoin(JoinType.Inner, alias, condition);
-        }
-        public SelectBuilder AddJoin<TEntity1, TEntity2>(JoinType joinType,
-            Expression<Func<TEntity1, TEntity2, bool>> condition)
-        {
-            return AddJoin(joinType, GetNextTableAlias(), condition);
-        }
-
-        public SelectBuilder AddJoin<TEntity, TJoin>(JoinType joinType, string alias,
-            Expression<Func<TEntity, TJoin, bool>> condition)
-        {
-            var tableSourceDefinition = tableDefinitions.Last(td => td.ModelType == typeof(TEntity));
-            var tableJoinDefinition = GetOrAddTableDefinition(typeof(TJoin), alias);
-            var aliases = new[] { tableSourceDefinition.Alias, tableJoinDefinition.Alias };
-
-            var definitionsByParameterName = GetTableDefinitionByParameterName(condition, aliases);
-            var visitor = new Visitor(definitionsByParameterName, this);
-
-            var conditionSql = visitor.GetSql(condition.Body);
-
-            AddJoinSql(joinType, Dialect.TableToSql(tableJoinDefinition.TableName, tableJoinDefinition.SchemaName), alias, conditionSql);
-            return this;
         }
         private Dictionary<string, TableDefinition> GetTableDefinitionByParameterName(
             LambdaExpression expr, string[] aliases)
@@ -77,82 +37,67 @@ namespace ToleSql
             }
             return result;
         }
-        public SelectBuilder Select<TEntity>(params Expression<Func<TEntity, object>>[] expressions)
+        private string[] GetAliasesForTypes(Type[] types)
         {
-            var aliases = tableDefinitions.Where(td => td.ModelType == typeof(TEntity)).Select(td => td.Alias).ToArray();
+            var aliases = new List<string>();
+            foreach (var type in types)
+                aliases.Add(tableDefinitions.Last(td => td.ModelType == type)?.Alias);
+            return aliases.ToArray();
+        }
+        public SelectBuilder From<TEntity>()
+        {
+            return From<TEntity>(GetNextTableAlias());
+        }
+        public SelectBuilder From<TEntity>(string alias)
+        {
+            var td = GetOrAddTableDefinition(typeof(TEntity), alias);
+            FromSql(Dialect.TableToSql(td.TableName, td.SchemaName), alias);
+            return this;
+        }
+        internal SelectBuilder Join(JoinType joinType, string newAlias,
+            Type newType, Type[] existingsTypes, LambdaExpression condition)
+        {
+            var aliases = new List<string>(GetAliasesForTypes(existingsTypes));
+            var newTableDefinition = GetOrAddTableDefinition(newType, newAlias);
+            aliases.Add(newAlias);
+
+            var definitionsByParameterName = GetTableDefinitionByParameterName(condition, aliases.ToArray());
+            var visitor = new Visitor(definitionsByParameterName, this);
+            var conditionSql = visitor.GetSql(condition.Body);
+
+            JoinSql(joinType,
+                Dialect.TableToSql(newTableDefinition.TableName, newTableDefinition.SchemaName),
+                newAlias, conditionSql);
+
+            return this;
+        }
+        internal SelectBuilder Select(Type[] types, LambdaExpression[] expressions)
+        {
+            var aliases = GetAliasesForTypes(types);
+
             foreach (var expr in expressions)
             {
-                var definitionsByParameterName = GetTableDefinitionByParameterName(expr, aliases);
+                var definitionsByParameterName = GetTableDefinitionByParameterName(expr, aliases.ToArray());
                 var visitor = new Visitor(definitionsByParameterName, this);
-
-                AddColumnSql(visitor.GetSql(expr.Body));
+                visitor.UseColumnAliases = true;
+                SelectSql(visitor.GetSql(expr.Body));
             }
             return this;
         }
-        public SelectBuilder Select<TEntity1, TEntity2>(params Expression<Func<TEntity1, TEntity2, object>>[] expressions)
+        internal SelectBuilder Where(WhereOperator preOperator, Type[] types, LambdaExpression expression)
         {
-            var alias1 = tableDefinitions.Single(td => td.ModelType == typeof(TEntity1)).Alias;
-            var alias2 = tableDefinitions.Single(td => td.ModelType == typeof(TEntity2)).Alias;
-            var aliases = new[] { alias1, alias2 };
-            foreach (var expr in expressions)
-            {
-                var definitionsByParameterName = GetTableDefinitionByParameterName(expr, aliases);
-                var visitor = new Visitor(definitionsByParameterName, this);
-
-                AddColumnSql(visitor.GetSql(expr.Body));
-            }
-            return this;
-        }
-
-        public SelectBuilder Where<TEntity>(Expression<Func<TEntity, bool>> expression)
-        {
-            return Where(WhereOperator.And, expression);
-        }
-        public SelectBuilder Where<TEntity>(WhereOperator preOperator,
-                    Expression<Func<TEntity, bool>> expression)
-        {
-            var tableDefinition = tableDefinitions.Last(td => td.ModelType == typeof(TEntity));
-            var aliases = new[] { tableDefinition.Alias };
-
+            var aliases = GetAliasesForTypes(types);
             var definitionsByParameterName = GetTableDefinitionByParameterName(expression, aliases);
-            var visitor = new Visitor(definitionsByParameterName, this);
 
+            var visitor = new Visitor(definitionsByParameterName, this);
             var conditionSql = visitor.GetSql(expression.Body);
 
-            AddWhereSql(preOperator, conditionSql);
+            WhereSql(preOperator, conditionSql);
             return this;
         }
-
-        public SelectBuilder Where<TEntity1, TEntity2>(Expression<Func<TEntity1, TEntity2, bool>> expression)
+        internal SelectBuilder OrderBy(OrderByDirection direction, Type[] types, LambdaExpression[] expressions)
         {
-            return Where(WhereOperator.And, expression);
-        }
-
-        public SelectBuilder Where<TEntity1, TEntity2>(WhereOperator preOperator,
-                    Expression<Func<TEntity1, TEntity2, bool>> expression)
-        {
-            var tableDefinition1 = tableDefinitions.Last(td => td.ModelType == typeof(TEntity1));
-            var tableDefinition2 = tableDefinitions.Last(td => td.ModelType == typeof(TEntity2));
-            var aliases = new[] { tableDefinition1.Alias, tableDefinition2.Alias };
-
-            var definitionsByParameterName = GetTableDefinitionByParameterName(expression, aliases);
-            var visitor = new Visitor(definitionsByParameterName, this);
-
-            var conditionSql = visitor.GetSql(expression.Body);
-
-            AddWhereSql(preOperator, conditionSql);
-            return this;
-        }
-
-        public SelectBuilder OrderBy<TEntity>(params Expression<Func<TEntity, object>>[] expressions)
-        {
-            return OrderBy(OrderByDirection.Asc, expressions);
-        }
-
-        public SelectBuilder OrderBy<TEntity>(OrderByDirection direction, params Expression<Func<TEntity, object>>[] expressions)
-        {
-            var tableDefinition = tableDefinitions.Last(td => td.ModelType == typeof(TEntity));
-            var aliases = new[] { tableDefinition.Alias };
+            var aliases = GetAliasesForTypes(types);
 
             foreach (var expr in expressions)
             {
@@ -160,8 +105,33 @@ namespace ToleSql
                 var visitor = new Visitor(definitionsByParameterName, this);
 
                 var orderbySql = visitor.GetSql(expr.Body);
-                AddOrderBySql(direction, orderbySql);
+                OrderBySql(direction, orderbySql);
             }
+            return this;
+        }
+        internal SelectBuilder GroupBy(Type[] types, LambdaExpression[] expressions)
+        {
+            var aliases = GetAliasesForTypes(types);
+
+            foreach (var expr in expressions)
+            {
+                var definitionsByParameterName = GetTableDefinitionByParameterName(expr, aliases);
+                var visitor = new Visitor(definitionsByParameterName, this);
+
+                var groupBySql = visitor.GetSql(expr.Body);
+                GroupBySql(groupBySql);
+            }
+            return this;
+        }
+        internal SelectBuilder Having(WhereOperator preOperator, Type[] types, LambdaExpression expression)
+        {
+            var aliases = GetAliasesForTypes(types);
+            var definitionsByParameterName = GetTableDefinitionByParameterName(expression, aliases);
+
+            var visitor = new Visitor(definitionsByParameterName, this);
+            var conditionSql = visitor.GetSql(expression.Body);
+
+            HavingSql(preOperator, conditionSql);
             return this;
         }
     }

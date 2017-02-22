@@ -1,9 +1,9 @@
-namespace ToleSql
+namespace ToleSql.Functions
 {
     /// <summary>
     /// Methods to be used only on expressions. They do nothing, only exists to be used for expression visitor.
     /// </summary>
-    public static class SelectBuilderQueryExpressionMethods
+    public static class DbFunctions
     {
         /// <summary>
         /// Add Where In (...) clausule
@@ -14,6 +14,23 @@ namespace ToleSql
         public static bool Contains(this SelectBuilder builder, object obj)
         {
             return true;
+        }
+
+        public static decimal Sum(object indentifier)
+        {
+            return decimal.MinValue;
+        }
+        public static long Count(object indentifier)
+        {
+            return long.MinValue;
+        }
+        public static decimal Max(object indentifier)
+        {
+            return decimal.MinValue;
+        }
+        public static decimal Min(object indentifier)
+        {
+            return decimal.MinValue;
         }
     }
 }

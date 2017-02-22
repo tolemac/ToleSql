@@ -7,7 +7,7 @@ namespace ToleSql.Expressions.Visitors.Interceptors
 {
     internal class StringEndsWithInterceptor : MethodCallInterceptorBase
     {
-        public override Expression Intercept(MethodCallExpression m, StringBuilder sql, Func<Expression, Expression> visit)
+        public override bool Intercept(MethodCallExpression m, StringBuilder sql, Func<Expression, Expression> visit)
         {
             if (m.Method.DeclaringType == typeof(string) && m.Method.Name == "EndsWith")
             {
@@ -17,9 +17,9 @@ namespace ToleSql.Expressions.Visitors.Interceptors
                 sql.Append($" {Dialect.Keyword(SqlKeyword.Like)} ");
                 sql.Append(Dialect.Quoted(Dialect.Symbol(SqlSymbols.Wildchar)) + " + ");
                 visit(right);
-                return m;
+                return true;
             }
-            return null;
+            return false;
         }
     }
 }

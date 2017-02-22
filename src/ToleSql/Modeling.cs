@@ -1,45 +1,42 @@
 using System;
-using System.Collections.Concurrent;
 using ToleSql.Model;
 
 namespace ToleSql
 {
     public static class Modeling
     {
-        internal static ConcurrentDictionary<Type, TableModel> _modelList =
-                    new ConcurrentDictionary<Type, TableModel>();
-
+        private static TypeModeling _instance = new TypeModeling();
+        public static string DefaultSchema { get { return _instance.DefaultSchema; } set { _instance.DefaultSchema = value; } }
         public static void ResetModeling()
         {
-            _modelList.Clear();
+            _instance.ResetModeling();
         }
         public static TableModel<TEntity> Model<TEntity>()
         {
-            return (TableModel<TEntity>)_modelList.GetOrAdd(typeof(TEntity),
-                (type) => new TableModel<TEntity>());
+            return _instance.Model<TEntity>();
         }
         public static TableModel Model(Type modelType)
         {
-            return _modelList.GetOrAdd(modelType, (type) => new TableModel(type));
+            return _instance.Model(modelType);
         }
 
         public static bool HasModel<TEntity>()
         {
-            return HasModel(typeof(TEntity));
+            return _instance.HasModel<TEntity>();
         }
         public static bool HasModel(Type modelType)
         {
-            return _modelList.ContainsKey(modelType);
+            return _instance.HasModel(modelType);
         }
         internal static TableModel<TEntity> GetModel<TEntity>()
         {
-            var result = GetModel(typeof(TEntity));
-            return (TableModel<TEntity>)result;
+            return _instance.GetModel<TEntity>();
         }
         internal static TableModel GetModel(Type modelType)
         {
-            var result = _modelList[modelType];
-            return result;
+            return _instance.GetModel(modelType);
         }
+
+        public static int ModelListCount { get { return _instance.ModelListCount; } }
     }
 }

@@ -18,4 +18,4 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("be992d98-74e1-4432-98ea-2ad768ea04fd")]
 
-[assembly: InternalsVisibleTo("ToleSql.Tests")]
+//[assembly: InternalsVisibleTo("ToleSql.Tests")]

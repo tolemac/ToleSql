@@ -1,6 +1,7 @@
 using Xunit;
 using ToleSql.SqlBuilder;
 using System;
+using ToleSql.Functions;
 
 namespace ToleSql.Tests
 {
@@ -10,10 +11,10 @@ namespace ToleSql.Tests
         {
         }
 
-        private void SetModeling()
+        internal static void SetModeling()
         {
             Modeling.ResetModeling();
-            Modeling.Model<Supplier>().SetSchema("WH");
+            Modeling.Model<Supplier>().SetSchema("WH").SetColumnName(s => s.CreatedBy, "CreatedBy_Id");
             Modeling.Model<DeliveryNote>().SetSchema("WH");
             Modeling.Model<DeliveryNoteDetail>().SetSchema("WH");
             Modeling.Model<Product>().SetSchema("WH");
@@ -30,7 +31,7 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>();
+            b.From<DeliveryNote>();
 
             var gen = b.GetSqlText();
             var spec = "SELECT * FROM [WH].[DeliveryNote] AS [T0]";
@@ -43,7 +44,7 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>("T100");
+            b.From<DeliveryNote>("T100");
 
             var gen = b.GetSqlText();
             var spec = "SELECT * FROM [WH].[DeliveryNote] AS [T100]";
@@ -56,7 +57,7 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>();
+            b.From<DeliveryNote>();
             b.Select<DeliveryNote>(i => i.Number, i => i.Date);
 
             var gen = b.GetSqlText();
@@ -70,11 +71,11 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>();
+            b.From<DeliveryNote>();
             b.Select<DeliveryNote>(i => i.Number.Substring(0, 3));
 
             var gen = b.GetSqlText();
-            var spec = "SELECT SUBSTRING([T0].[Number],@SqlParam0,@SqlParam1) FROM [WH].[DeliveryNote] AS [T0]";
+            var spec = "SELECT SUBSTRING([T0].[Number],(@SqlParam0) + 1,@SqlParam1) FROM [WH].[DeliveryNote] AS [T0]";
 
             Assert.Equal(spec, gen);
         }
@@ -84,7 +85,7 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>("T100");
+            b.From<DeliveryNote>("T100");
             b.Select<DeliveryNote>(i => i.Number, i => i.Date);
 
             var gen = b.GetSqlText();
@@ -98,11 +99,27 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>();
-            b.AddJoin<DeliveryNote, DeliveryNoteDetail>((i, id) => i.Id == id.DeliveryNoteId);
+            b.From<DeliveryNote>();
+            b.Join<DeliveryNote, DeliveryNoteDetail>((i, id) => i.Id == id.DeliveryNoteId);
 
             var gen = b.GetSqlText();
             var spec = "SELECT * FROM [WH].[DeliveryNote] AS [T0] INNER JOIN [WH].[DeliveryNoteDetail] AS [T1] ON ([T0].[Id] = [T1].[DeliveryNote_Id])";
+
+            Assert.Equal(spec, gen);
+        }
+        [Fact]
+        public void SelectJoinTablesWithTripleType()
+        {
+            Configuration.SetDialect(new TestDialect());
+            SetModeling();
+            var b = new SelectBuilder();
+            b.From<DeliveryNote>();
+            b.Join<DeliveryNote, DeliveryNoteDetail>((i, id) => i.Id == id.DeliveryNoteId);
+            b.Join<DeliveryNote, DeliveryNoteDetail, User>(
+                (dn, dnd, u) => dn.CreatedBy == u.Id && dnd.CreatedBy == u.Id);
+
+            var gen = b.GetSqlText();
+            var spec = "SELECT * FROM [WH].[DeliveryNote] AS [T0] INNER JOIN [WH].[DeliveryNoteDetail] AS [T1] ON ([T0].[Id] = [T1].[DeliveryNote_Id]) INNER JOIN [LoB].[SecurityProfile] AS [T2] ON (([T0].[CreatedBy] = [T2].[Id]) AND ([T1].[CreatedBy] = [T2].[Id]))";
 
             Assert.Equal(spec, gen);
         }
@@ -112,8 +129,8 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>();
-            b.AddJoin<DeliveryNote, DeliveryNoteDetail>(JoinType.Left, (i, id) => i.Id == id.DeliveryNoteId);
+            b.From<DeliveryNote>();
+            b.Join<DeliveryNote, DeliveryNoteDetail>(JoinType.Left, (i, id) => i.Id == id.DeliveryNoteId);
 
             var gen = b.GetSqlText();
             var spec = "SELECT * FROM [WH].[DeliveryNote] AS [T0] LEFT JOIN [WH].[DeliveryNoteDetail] AS [T1] ON ([T0].[Id] = [T1].[DeliveryNote_Id])";
@@ -126,8 +143,8 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>("T11");
-            b.AddJoin<DeliveryNote, DeliveryNoteDetail>("T22", (i, id) => i.Id == id.DeliveryNoteId || i.TotalAmount >= id.UnitPrice);
+            b.From<DeliveryNote>("T11");
+            b.Join<DeliveryNote, DeliveryNoteDetail>("T22", (i, id) => i.Id == id.DeliveryNoteId || i.TotalAmount >= id.UnitPrice);
 
             var gen = b.GetSqlText();
             var spec = "SELECT * FROM [WH].[DeliveryNote] AS [T11] INNER JOIN [WH].[DeliveryNoteDetail] AS [T22] ON (([T11].[Id] = [T22].[DeliveryNote_Id]) OR ([T11].[TotalAmount] >= [T22].[UnitPrice]))";
@@ -141,8 +158,8 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>("T11");
-            b.AddJoin<DeliveryNote, DeliveryNoteDetail>("T22", (i, id) => i.Id == id.DeliveryNoteId || i.TotalAmount >= id.UnitPrice);
+            b.From<DeliveryNote>("T11");
+            b.Join<DeliveryNote, DeliveryNoteDetail>("T22", (i, id) => i.Id == id.DeliveryNoteId || i.TotalAmount >= id.UnitPrice);
             b.Select<DeliveryNote>((i) => i.Date, (i) => i.Number);
             b.Select<DeliveryNoteDetail>((id) => id.UnitPrice, (id) => id.Amount);
             b.Select<DeliveryNote, DeliveryNoteDetail>((i, id) => i.TotalAmount + id.Amount);
@@ -158,8 +175,8 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<User>("T11");
-            b.AddJoin<User, User>("T22", (c1, c2) => c1.CreatedBy == c2.Id);
+            b.From<User>("T11");
+            b.Join<User, User>("T22", (c1, c2) => c1.CreatedBy == c2.Id);
 
             var gen = b.GetSqlText();
             var spec = "SELECT * FROM [LoB].[SecurityProfile] AS [T11] INNER JOIN [LoB].[SecurityProfile] AS [T22] ON ([T11].[CreatedBy_Id] = [T22].[Id])";
@@ -172,7 +189,7 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>();
+            b.From<DeliveryNote>();
             b.Where<DeliveryNote>(i => i.Number == null && i.Year == "B" && i.Id > 2 && i.TotalAmount == 0);
 
             var gen = b.GetSqlText();
@@ -190,7 +207,7 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<Supplier>();
+            b.From<Supplier>();
             b.Where<Supplier>(i => i.Name.Contains("Javier"));
 
             var gen = b.GetSqlText();
@@ -205,7 +222,7 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<Supplier>();
+            b.From<Supplier>();
             b.Where<Supplier>(i => i.Name.StartsWith("Javier"));
 
             var gen = b.GetSqlText();
@@ -220,7 +237,7 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<Supplier>();
+            b.From<Supplier>();
             b.Where<Supplier>(i => i.Name.EndsWith("Javier"));
 
             var gen = b.GetSqlText();
@@ -235,11 +252,11 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<Supplier>();
+            b.From<Supplier>();
             b.Where<Supplier>(i => i.Name.Substring(0).Contains("Javier"));
 
             var gen = b.GetSqlText();
-            var spec = "SELECT * FROM [WH].[Supplier] AS [T0] WHERE SUBSTRING([T0].[Name],@SqlParam0,@SqlParam1) LIKE '%' + @SqlParam2 + '%'";
+            var spec = "SELECT * FROM [WH].[Supplier] AS [T0] WHERE SUBSTRING([T0].[Name],(@SqlParam0) + 1,@SqlParam1) LIKE '%' + @SqlParam2 + '%'";
 
             Assert.Equal(spec, gen);
             Assert.Equal(b.Parameters["SqlParam0"], 0);
@@ -252,7 +269,7 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<Supplier>();
+            b.From<Supplier>();
             var name = "Javier Ros Moreno";
             b.Where<Supplier>(i => name.Contains(i.Name));
 
@@ -268,7 +285,7 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>();
+            b.From<DeliveryNote>();
             var year = "B";
             var id = 2;
             var total = 0;
@@ -290,7 +307,7 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>("T0");
+            b.From<DeliveryNote>("T0");
             string year = null;
             long? id = null;
             decimal? total = null;
@@ -309,9 +326,9 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>();
-            b.AddJoin<DeliveryNote, DeliveryNoteDetail>((i, id) => i.Id == id.DeliveryNoteId);
-            b.AddJoin<DeliveryNote, Supplier>((i, c) => i.SupplierId == c.Id);
+            b.From<DeliveryNote>();
+            b.Join<DeliveryNote, DeliveryNoteDetail>((i, id) => i.Id == id.DeliveryNoteId);
+            b.Join<DeliveryNote, Supplier>((i, c) => i.SupplierId == c.Id);
             b.Select<DeliveryNote, Supplier>((i, c) => i.Number, (i, c) => c.Name, (i, c) => i.Date, (i, c) => i.TotalAmount);
             b.Select<DeliveryNoteDetail>((id) => id.Size);
             b.Where<Supplier>(c => c.IsDeleted);
@@ -333,7 +350,7 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>();
+            b.From<DeliveryNote>();
             b.OrderBy<DeliveryNote>(OrderByDirection.Desc, i => i.Date);
             b.OrderBy<DeliveryNote>(i => i.Year, i => i.SupplierId);
 
@@ -349,9 +366,9 @@ namespace ToleSql.Tests
             SetModeling();
             var b = new SelectBuilder();
             var f = false;
-            var subQuery = new SelectBuilder().SetMainTable<Supplier>().Where<Supplier>(c => c.IsDeleted == f).Select<Supplier>(c => c.Id);
+            var subQuery = new SelectBuilder().From<Supplier>().Where<Supplier>(c => c.IsDeleted == f).Select<Supplier>(c => c.Id);
 
-            b.SetMainTable<DeliveryNote>();
+            b.From<DeliveryNote>();
             b.Where<DeliveryNote>(i => subQuery.Contains(i.SupplierId) && i.Number == "hola");
 
             var gen = b.GetSqlText();
@@ -367,10 +384,10 @@ namespace ToleSql.Tests
             var b = new SelectBuilder();
             var const1 = false;
             var const2 = false;
-            var subQuery1 = new SelectBuilder().SetMainTable<Supplier>().Where<Supplier>(c => c.IsDeleted == const1).Select<Supplier>(c => c.Id);
-            var subQuery2 = new SelectBuilder().SetMainTable<Supplier>().Where<Supplier>(c => c.IsDeleted == const2).Where<Supplier>(c => subQuery1.Contains(c.Id)).Select<Supplier>(c => c.Id);
+            var subQuery1 = new SelectBuilder().From<Supplier>().Where<Supplier>(c => c.IsDeleted == const1).Select<Supplier>(c => c.Id);
+            var subQuery2 = new SelectBuilder().From<Supplier>().Where<Supplier>(c => c.IsDeleted == const2).Where<Supplier>(c => subQuery1.Contains(c.Id)).Select<Supplier>(c => c.Id);
 
-            b.SetMainTable<DeliveryNote>();
+            b.From<DeliveryNote>();
             b.Where<DeliveryNote>(i => subQuery1.Contains(i.SupplierId) && i.Number == "hola1");
             b.Where<DeliveryNote>(i => subQuery2.Contains(i.SupplierId) && i.Number == "hola2");
 
@@ -407,8 +424,8 @@ namespace ToleSql.Tests
             Configuration.SetDialect(new TestDialect());
             SetModeling();
             var b = new SelectBuilder();
-            b.SetMainTable<DeliveryNote>();
-            b.AddJoin<DeliveryNote, Supplier>((dn, s) => dn.SupplierId == s.Id);
+            b.From<DeliveryNote>();
+            b.Join<DeliveryNote, Supplier>((dn, s) => dn.SupplierId == s.Id);
             b.Select<DeliveryNote, Supplier>((dn, s) => new DeliveryNoteDto
             {
                 Number = dn.Number,
@@ -421,6 +438,28 @@ namespace ToleSql.Tests
             var spec = "SELECT [T0].[Number] AS Number, [T0].[TotalAmount] AS TotalAmount, [T0].[Date] AS Date, [T1].[Name] AS SupplierName FROM [WH].[DeliveryNote] AS [T0] INNER JOIN [WH].[Supplier] AS [T1] ON ([T0].[SupplierId] = [T1].[Id])";
 
             Assert.Equal(spec, gen);
+        }
+
+        [Fact]
+        public void SelectGroupByHaving()
+        {
+            Configuration.SetDialect(new TestDialect());
+            SetModeling();
+            var b = new SelectBuilder();
+            b.From<DeliveryNote>();
+            b.Select<DeliveryNote>(dn => dn.SupplierId);
+            b.Select<DeliveryNote>(dn => DbFunctions.Sum(dn.TotalAmount));
+            b.Select<DeliveryNote>(dn => DbFunctions.Count(dn.TotalAmount));
+            b.Select<DeliveryNote>(dn => DbFunctions.Min(dn.TotalAmount));
+            b.Select<DeliveryNote>(dn => DbFunctions.Max(dn.TotalAmount));
+            b.GroupBy<DeliveryNote>(dn => dn.SupplierId);
+            b.Having<DeliveryNote>(dn => DbFunctions.Sum(dn.TotalAmount) > 10);
+
+            var gen = b.GetSqlText();
+            var spec = "SELECT [T0].[SupplierId], SUM([T0].[TotalAmount]), COUNT([T0].[TotalAmount]), MIN([T0].[TotalAmount]), MAX([T0].[TotalAmount]) FROM [WH].[DeliveryNote] AS [T0] GROUP BY [T0].[SupplierId] HAVING (SUM([T0].[TotalAmount]) > @SqlParam0)";
+
+            Assert.Equal(spec, gen);
+            Assert.Equal(b.Parameters["SqlParam0"], (decimal)10);
         }
     }
 }

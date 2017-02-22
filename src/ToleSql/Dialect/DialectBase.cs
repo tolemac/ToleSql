@@ -10,6 +10,7 @@ namespace ToleSql.Dialect
         public abstract string TableToSql(string tableName, string schemaName);
         public abstract string ColumnToSql(string tableName, string schemaName, string columnName);
         public abstract string ColumnToSql(string alias, string columnName);
+        public abstract string AllColumnsFrom(string alias);
         public abstract string AlaisToSql(string alias);
         public abstract string GetParameterPrefix();
         public abstract string Quoted(string inner);
@@ -111,6 +112,14 @@ namespace ToleSql.Dialect
                     return "LIKE";
                 case SqlKeyword.SubString:
                     return "SUBSTRING";
+                case SqlKeyword.Sum:
+                    return "SUM";
+                case SqlKeyword.Count:
+                    return "COUNT";
+                case SqlKeyword.Min:
+                    return "MIN";
+                case SqlKeyword.Max:
+                    return "MAX";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(keyword), keyword, null);
             }
@@ -156,6 +165,8 @@ namespace ToleSql.Dialect
 
         public virtual string GetSourceExplicitJoins(RawSelectBuilder builder)
         {
+            if (builder.MainSourceSql == null)
+                return "";
             var result = new StringBuilder(Keyword(SqlKeyword.From) + $" {GetSourceSqlWithAlias(builder.MainSourceSql.Expression, builder.MainSourceSql.Alias)}");
             foreach (var j in builder.JoinSqls)
             {
@@ -271,12 +282,12 @@ namespace ToleSql.Dialect
             var result = $"{select} {source}";
             if (!string.IsNullOrWhiteSpace(where))
                 result += $" {where}";
-            if (!string.IsNullOrWhiteSpace(orderBy))
-                result += $" {orderBy}";
             if (!string.IsNullOrWhiteSpace(groupBy))
                 result += $" {groupBy}";
             if (!string.IsNullOrWhiteSpace(having))
                 result += $" {having}";
+            if (!string.IsNullOrWhiteSpace(orderBy))
+                result += $" {orderBy}";
             return result;
         }
     }

@@ -7,7 +7,7 @@ namespace ToleSql.Expressions.Visitors.Interceptors
 {
     internal class SubStringInterceptor : MethodCallInterceptorBase
     {
-        public override Expression Intercept(MethodCallExpression m, StringBuilder sql,
+        public override bool Intercept(MethodCallExpression m, StringBuilder sql,
             Func<Expression, Expression> visit)
         {
             if (m.Method.DeclaringType == typeof(string) && m.Method.Name == "Substring")
@@ -18,13 +18,16 @@ namespace ToleSql.Expressions.Visitors.Interceptors
                 sql.Append(Dialect.Symbol(SqlSymbols.StartGroup));
                 visit(m.Object);
                 sql.Append(Dialect.Symbol(SqlSymbols.Comma));
+                sql.Append(Dialect.Symbol(SqlSymbols.StartGroup));
                 visit(start);
+                sql.Append(Dialect.Symbol(SqlSymbols.EndGroup));
+                sql.Append($" {Dialect.ArithMeticOperand(SqlArithmeticOperand.Add)} 1");
                 sql.Append(Dialect.Symbol(SqlSymbols.Comma));
                 visit(end);
                 sql.Append(Dialect.Symbol(SqlSymbols.EndGroup));
-                return m;
+                return true;
             }
-            return null;
+            return false;
         }
     }
 }

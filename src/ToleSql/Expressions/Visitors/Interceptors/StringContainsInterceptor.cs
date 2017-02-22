@@ -7,7 +7,7 @@ namespace ToleSql.Expressions.Visitors.Interceptors
 {
     internal class StringContainsInterceptor : MethodCallInterceptorBase
     {
-        public override Expression Intercept(MethodCallExpression m, StringBuilder sql, Func<Expression, Expression> visit)
+        public override bool Intercept(MethodCallExpression m, StringBuilder sql, Func<Expression, Expression> visit)
         {
             if (m.Method.DeclaringType == typeof(string) && m.Method.Name == "Contains")
             {
@@ -18,9 +18,9 @@ namespace ToleSql.Expressions.Visitors.Interceptors
                 sql.Append(Dialect.Quoted(Dialect.Symbol(SqlSymbols.Wildchar)) + " + ");
                 visit(right);
                 sql.Append(" + " + Dialect.Quoted(Dialect.Symbol(SqlSymbols.Wildchar)));
-                return m;
+                return true;
             }
-            return null;
+            return false;
         }
     }
 }

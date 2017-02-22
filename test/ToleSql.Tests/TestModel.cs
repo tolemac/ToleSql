@@ -31,6 +31,7 @@ namespace ToleSql.Tests
         public virtual string Email { get; set; }
         public virtual string TaxCode { get; set; }
         public virtual bool IsDeleted { get; set; }
+        public virtual long CreatedBy { get; set; }
     }
     public class DeliveryNote
     {
@@ -44,6 +45,7 @@ namespace ToleSql.Tests
         public virtual string Year { get; set; }
         public virtual bool IsProcessed { get; set; }
         public virtual bool IsDeleted { get; set; }
+        public virtual long CreatedBy { get; set; }
     }
     public class DeliveryNoteDetail
     {
@@ -56,6 +58,7 @@ namespace ToleSql.Tests
         public virtual decimal BasePrice { get { return UnitPrice * Amount; } }
         public virtual string Location { get; set; }
         public virtual bool IsDeleted { get; set; }
+        public virtual long CreatedBy { get; set; }
     }
     public class Product
     {
