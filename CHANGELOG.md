@@ -1,5 +1,6 @@
 # Version 1.5.0-beta2 (WIP)
 
+* refactor: refactor: separate same group members [4112e0e](https://github.com/tolemac/ToleSql/commit/4112e0e5e4bdbc70d5275231f0cdc8f216a7a087)
 * refactor: generic methods refactorized [fae094a](https://github.com/tolemac/ToleSql/commit/fae094a18af0f27c4e642b15c57bce0363d42c30)
 * docs: update docs with new features [b1eb556](https://github.com/tolemac/ToleSql/commit/b1eb5563360abd37afedfee64c0ab7341a1b653f)
 * test: add travis continuous integration [199fdb5](https://github.com/tolemac/ToleSql/commit/199fdb50ee31b7e7fa0b791be2128528d56c7192)
