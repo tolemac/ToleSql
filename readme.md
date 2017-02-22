@@ -16,7 +16,7 @@ Acceda a la [Documentación](./docs/es/home-es.md)
 
 Está disponible [en NuGet](https://www.nuget.org/packages/ToleSql/)
 
-````
+```` shell
 Install-Package ToleSql
 ````
 
@@ -37,3 +37,7 @@ var spec = "SELECT * FROM [DeliveryNote] AS [T0] WHERE [T0].[Year] = @SqlParam0"
 Assert.Equal(spec, gen);
 Assert.Equal(b.Builder.Parameters[0], "2017");
 ````
+
+## Quieres contriburir?
+
+Eres bienvenido, hay un archivo `CONTRIBUTING.md`  en la carpeta `.github`, pero tan solo es una guía de buenas prácticas. Cualquier ayuda es bienvenida.
