@@ -71,26 +71,6 @@ namespace ToleSql
 
             return this;
         }
-        public SelectBuilder Join<TEntity1, TEntity2>(Expression<Func<TEntity1, TEntity2, bool>> condition)
-        {
-            return Join(JoinType.Inner, GetNextTableAlias(), condition);
-        }
-        public SelectBuilder Join<TEntity1, TEntity2>(string alias,
-            Expression<Func<TEntity1, TEntity2, bool>> condition)
-        {
-            return Join(JoinType.Inner, alias, condition);
-        }
-        public SelectBuilder Join<TEntity1, TEntity2>(JoinType joinType,
-            Expression<Func<TEntity1, TEntity2, bool>> condition)
-        {
-            return Join(joinType, GetNextTableAlias(), condition);
-        }
-
-        public SelectBuilder Join<TEntity, TJoin>(JoinType joinType, string alias,
-            Expression<Func<TEntity, TJoin, bool>> condition)
-        {
-            return Join(joinType, alias, typeof(TJoin), new[] { typeof(TEntity) }, condition);
-        }
         internal SelectBuilder Select(Type[] types, LambdaExpression[] expressions)
         {
             var aliases = GetAliasesForTypes(types);
@@ -104,11 +84,6 @@ namespace ToleSql
             }
             return this;
         }
-        public SelectBuilder Select<TEntity>(params Expression<Func<TEntity, object>>[] expressions)
-        {
-            return Select(new[] { typeof(TEntity) }, expressions);
-        }
-
         internal SelectBuilder Where(WhereOperator preOperator, Type[] types, LambdaExpression expression)
         {
             var aliases = GetAliasesForTypes(types);
@@ -120,16 +95,6 @@ namespace ToleSql
             WhereSql(preOperator, conditionSql);
             return this;
         }
-        public SelectBuilder Where<TEntity>(Expression<Func<TEntity, bool>> expression)
-        {
-            return Where(WhereOperator.And, expression);
-        }
-        public SelectBuilder Where<TEntity>(WhereOperator preOperator,
-                    Expression<Func<TEntity, bool>> expression)
-        {
-            return Where(preOperator, new[] { typeof(TEntity) }, expression);
-        }
-
         internal SelectBuilder OrderBy(OrderByDirection direction, Type[] types, LambdaExpression[] expressions)
         {
             var aliases = GetAliasesForTypes(types);
@@ -144,16 +109,6 @@ namespace ToleSql
             }
             return this;
         }
-        public SelectBuilder OrderBy<TEntity>(params Expression<Func<TEntity, object>>[] expressions)
-        {
-            return OrderBy(OrderByDirection.Asc, expressions);
-        }
-
-        public SelectBuilder OrderBy<TEntity>(OrderByDirection direction, params Expression<Func<TEntity, object>>[] expressions)
-        {
-            return OrderBy(direction, new[] { typeof(TEntity) }, expressions);
-        }
-
         internal SelectBuilder GroupBy(Type[] types, LambdaExpression[] expressions)
         {
             var aliases = GetAliasesForTypes(types);
@@ -168,11 +123,6 @@ namespace ToleSql
             }
             return this;
         }
-        public SelectBuilder GroupBy<TEntity>(params Expression<Func<TEntity, object>>[] expressions)
-        {
-            return GroupBy(new[] { typeof(TEntity) }, expressions);
-        }
-
         internal SelectBuilder Having(WhereOperator preOperator, Type[] types, LambdaExpression expression)
         {
             var aliases = GetAliasesForTypes(types);
@@ -183,15 +133,6 @@ namespace ToleSql
 
             HavingSql(preOperator, conditionSql);
             return this;
-        }
-        public SelectBuilder Having<TEntity>(Expression<Func<TEntity, bool>> expression)
-        {
-            return Having(WhereOperator.And, expression);
-        }
-        public SelectBuilder Having<TEntity>(WhereOperator preOperator,
-                    Expression<Func<TEntity, bool>> expression)
-        {
-            return Having(preOperator, new[] { typeof(TEntity) }, expression);
         }
     }
 }

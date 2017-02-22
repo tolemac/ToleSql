@@ -107,12 +107,7 @@ namespace ToleSql
             return this;
         }
 
-        internal string GetSubQueryParamPrefix()
-        {
-            return "SubQ" + _subQueryCount++;
-        }
-
-        public string NextParamId()
+        internal string NextParamId()
         {
             return ParameterNamePrefix + (_paramCount++);
         }
@@ -122,5 +117,11 @@ namespace ToleSql
             _parameters.Add(key, value);
             return key;
         }
+
+        public string GetSqlText()
+        {
+            return Configuration.Dialect.GetSelect(this);
+        }
+
     }
 }
