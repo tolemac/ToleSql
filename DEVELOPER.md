@@ -6,7 +6,7 @@ You need at least .Net Core 1.1.0.
 
 ## Getting the sources
 
-[Fork](http://help.github.com/forking) and clone [ToleSql](https://github.com/tolemac/ToleSql) repository.
+[Fork](http://help.github.com/forking) and clone [ToleSql](https://github.com/(user-name)/ToleSql) repository.
 
 ```` shell
 # Clone your GitHub repository:
