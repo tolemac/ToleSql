@@ -2,28 +2,36 @@
   "buildOptions": {
     "debugType": "portable"
   },
-  "version": "1.5.0",
-  "dependencies": {},
+  "version": "0.0.1",
+  "dependencies": {
+    "ToleSql": {
+      "target": "project"
+    }
+  },
   "frameworks": {
     "netstandard1.6": {
       "imports": "dnxcore50",
       "dependencies": {
-        "NETStandard.Library": "1.6.0"
+        "NETStandard.Library": "1.6.0",
+        "Dapper": "1.50.2"
       }
     },
-    "net452": {}
+    "net452": {
+      "dependencies": {
+        "Dapper": "1.50.2"
+      }
+    }
   },
   // Datos para NuGet
-  "title": "ToleSql",
+  "title": "ToleSql.Dapper",
   "packOptions": {
     "owners": [
       "tolemaC"
     ],
     "tags": [
-      "sql",
-      "generator",
-      "builder",
-      "expressions"
+      "dapper",
+      "extension",
+      "tolesql"
     ],
     "requireLicenseAcceptance": false,
     "projectUrl": "https://github.com/tolemac/ToleSql",
@@ -37,6 +45,6 @@
   "authors": [
     "Javier Ros (tolemaC)"
   ],
-  "description": ".NET Sql Builder and Generator",
+  "description": ".NET Dapper extension for ToleSql",
   "copyright": "Copyright 2017"
 }

@@ -2,28 +2,36 @@
   "buildOptions": {
     "debugType": "portable"
   },
-  "version": "1.5.0",
-  "dependencies": {},
+  "version": "0.0.1",
+  "dependencies": {
+    "ToleSql": {
+      "target": "project"
+    }
+  },
   "frameworks": {
     "netstandard1.6": {
       "imports": "dnxcore50",
       "dependencies": {
-        "NETStandard.Library": "1.6.0"
+        "NETStandard.Library": "1.6.0",
+        "System.Data.Common": "4.3.0"
       }
     },
-    "net452": {}
+    "net452": {
+      "dependencies": {
+        "System.Data.Common": "4.3.0"
+      }
+    }
   },
   // Datos para NuGet
-  "title": "ToleSql",
+  "title": "ToleSql.Ado",
   "packOptions": {
     "owners": [
       "tolemaC"
     ],
     "tags": [
-      "sql",
-      "generator",
-      "builder",
-      "expressions"
+      "ado",
+      "extension",
+      "tolesql"
     ],
     "requireLicenseAcceptance": false,
     "projectUrl": "https://github.com/tolemac/ToleSql",
@@ -37,6 +45,6 @@
   "authors": [
     "Javier Ros (tolemaC)"
   ],
-  "description": ".NET Sql Builder and Generator",
+  "description": ".NET Ado extension for ToleSql",
   "copyright": "Copyright 2017"
 }
