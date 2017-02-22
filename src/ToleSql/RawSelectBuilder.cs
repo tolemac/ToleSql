@@ -19,7 +19,6 @@ namespace ToleSql
 
         private int _aliasCount = 0;
         private int _paramCount = 0;
-        private int _subQueryCount = 0;
         private IDictionary<string, object> _parameters = new Dictionary<string, object>();
         public RawSelectBuilder()
         {

@@ -2,7 +2,7 @@
   "buildOptions": {
     "debugType": "portable"
   },
-  "version": "1.5.0-beta1",
+  "version": "1.5.0",
   "dependencies": {},
   "frameworks": {
     "netstandard1.6": {
@@ -30,7 +30,7 @@
       "type": "git",
       "url": "https://github.com/tolemac/ToleSql"
     },
-    "releaseNotes": "Work in progress",
+    "releaseNotes": "https://github.com/tolemac/ToleSql/blob/master/CHANGELOG.md",
     "summary": ""
   },
   "authors": [
