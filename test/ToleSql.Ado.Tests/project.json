@@ -1,0 +1,32 @@
+﻿{
+  "version": "1.0.0",
+  "testRunner": "xunit",
+  "buildOptions": {
+    "copyToOutput": [
+      "xunit.runner.json"
+    ],
+    "debugType": "portable"
+  },
+  "dependencies": {
+    "ToleSql.Ado": {
+      "target": "project"
+    },
+    "ToleSql": {
+      "target": "project"
+    },
+    "xunit": "2.2.0",
+    "moq": "4.6.38-alpha",
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.1"
+    },
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "System.Runtime": "4.3.0",
+    "System.Data.Common": "4.3.0"
+  },
+  "frameworks": {
+    "netcoreapp1.1": {
+      "dependencies": {}
+    }
+  }
+}
