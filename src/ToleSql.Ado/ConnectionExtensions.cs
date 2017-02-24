@@ -4,8 +4,9 @@ namespace ToleSql.Ado
 {
     public static class DbConnectionExtensions
     {
-        public static T Apply<T>(this T cmd, SelectBuilder builder) where T : IDbCommand
+        public static IDbCommand CreateCommand(this IDbConnection cnn, IBuilder builder)
         {
+            var cmd = cnn.CreateCommand();
             cmd.CommandText = builder.GetSqlText();
             foreach (var param in builder.Parameters)
             {
@@ -16,9 +17,10 @@ namespace ToleSql.Ado
             }
             return cmd;
         }
-        public static T Apply<T>(this T cmd, SelectFrom builder) where T : IDbCommand
+        public static IDataReader ExecuteReader(this IDbConnection cnn, IBuilder builder)
         {
-            return Apply(cmd, builder.Builder);
+            var cmd = cnn.CreateCommand();
+            return cmd.ExecuteReader();
         }
     }
 }

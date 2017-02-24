@@ -1,2 +1,1 @@
-dotnet build ./src/ToleSql
-dotnet build ./test/ToleSql.Tests
+dotnet build ./**/project.json

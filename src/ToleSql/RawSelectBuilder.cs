@@ -5,7 +5,7 @@ using ToleSql.Dialect;
 
 namespace ToleSql
 {
-    public class RawSelectBuilder
+    public class RawSelectBuilder : IBuilder
     {
         internal SourceSql MainSourceSql;
         internal List<ColumnSql> SelectSqls = new List<ColumnSql>();

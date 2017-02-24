@@ -1,13 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using ToleSql.SqlBuilder;
 
 namespace ToleSql
 {
-
-    public class SelectFrom
+    public class SelectFrom : IBuilder
     {
         public SelectBuilder Builder { get; protected set; }
+        public IDictionary<string, object> Parameters { get { return Builder.Parameters; } }
         public SelectFrom()
         {
             Builder = new SelectBuilder();
